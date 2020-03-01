@@ -3,6 +3,8 @@
 
 #include "../Module.h"
 
+#include <devices.h>
+
 /**
  * Moving Module Commands
  */
@@ -75,11 +77,19 @@ struct MovingModuleInterface {
 };
 
 class MovingModule : public Module {
+private:
+  handle_t pwm0;
+  double frequency;
+  uint32_t leftPinF;
+  uint32_t leftPinB;
+  uint32_t rightPinF;
+  uint32_t rightPinB;
+
 public:
   /**
    * @brief Default constructor
    */
-  MovingModule(void);
+  MovingModule(const double frequency, const uint32_t leftPinF, const uint32_t leftPinB, const uint32_t rightPinF, const uint32_t rightPinB);
   ErrorCode init(void);
   void mainFunction(void);
   /**

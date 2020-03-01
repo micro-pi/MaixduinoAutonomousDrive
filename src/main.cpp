@@ -11,8 +11,12 @@
 
 int main() {
   BaseType_t xReturn;
-
-  MovingModule movingModule;
+  double frequency = 2000;
+  uint32_t leftPinF = 0;
+  uint32_t leftPinB = 1;
+  uint32_t rightPinF = 2;
+  uint32_t rightPinB = 3;
+  MovingModule movingModule(frequency, leftPinF, leftPinB, rightPinF, rightPinB);
   movingModule.init();
   movingModule.mainFunction();
 

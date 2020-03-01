@@ -9,12 +9,27 @@ ErrorCode getCommand(MovingModuleInterface &movingModuleInterface) {
   return E_OK;
 }
 
-MovingModule::MovingModule(void) {
+MovingModule::MovingModule(const double frequency, const uint32_t leftPinF, const uint32_t leftPinB, const uint32_t rightPinF, const uint32_t rightPinB) {
+  this->pwm0 = 0;
+  this->frequency = frequency;
+  this->leftPinF = leftPinF;
+  this->leftPinB = leftPinB;
+  this->rightPinF = rightPinF;
+  this->rightPinB = rightPinB;
 }
 
 ErrorCode MovingModule::init(void) {
+  ErrorCode errorCode;
+  pwm0 = io_open("/dev/pwm0");
+  configASSERT(pwm0);
+  if (pwm0 == 0) {
+    errorCode = E_NOK;
+  } else {
+    pwm_set_frequency(pwm0, frequency);
+    errorCode = E_OK;
+  }
 
-  return E_OK;
+  return errorCode;
 }
 
 void MovingModule::mainFunction(void) {
@@ -54,6 +69,7 @@ MovingModule::~MovingModule(void) {
 }
 
 void MovingModule::stopCommand(const MovingModuleCommandAttribute commandAttribute) {
+  /* TODO: look here https://github.com/kendryte/kendryte-freertos-demo/blob/develop/pwm/main.c */
 }
 
 void MovingModule::startCommand(const MovingModuleCommandAttribute commandAttribute) {
