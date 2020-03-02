@@ -2,7 +2,6 @@
 #define MODULE_H
 
 #include "ModuleTypes.h"
-#include <stdint.h>
 
 class Module {
 public:

@@ -1,15 +1,6 @@
 #include "MovingModule.h"
 
-ErrorCode getCommand(MovingModuleInterface &movingModuleInterface) {
-  /* TODO: Implement me as a normal interface */
-  movingModuleInterface.command = MOVING_MODULE_COMMAND_STOP;
-  movingModuleInterface.commandAttribute = MOVING_MODULE_COMMAND_ATTRIBUTE_ALL;
-  movingModuleInterface.movingDirection = MOVING_MODULE_DIRECTION_NONE;
-  movingModuleInterface.pwmValue = 0u;
-  return E_OK;
-}
-
-MovingModule::MovingModule(const double frequency, const uint32_t leftPinF, const uint32_t leftPinB, const uint32_t rightPinF, const uint32_t rightPinB) {
+MovingModule::MovingModule(CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftPinF, const uint32_t leftPinB, const uint32_t rightPinF, const uint32_t rightPinB) : movingModuleCommands(movingModuleCmds) {
   this->pwm0 = 0;
   this->frequency = frequency;
   this->leftPinF = leftPinF;
@@ -34,9 +25,10 @@ ErrorCode MovingModule::init(void) {
 
 void MovingModule::mainFunction(void) {
   MovingModuleInterface movingModuleInterface;
-  ErrorCode errorCode;
-  errorCode = getCommand(movingModuleInterface);
-  if (errorCode == E_OK) {
+  bool isNotEmpty;
+
+  isNotEmpty = movingModuleCommands.deQueue(movingModuleInterface);
+  if (true == isNotEmpty) {
     switch (movingModuleInterface.command) {
       case MOVING_MODULE_COMMAND_STOP:
         stopCommand(movingModuleInterface.commandAttribute);
@@ -58,10 +50,8 @@ void MovingModule::mainFunction(void) {
         /* Unsupported command */
         break;
     }
-  } else if (errorCode == E_NOK) {
-    /* In case of error */
   } else {
-    /* MISRA */
+    /* MISRA : the queue is empty */
   }
 }
 

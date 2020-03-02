@@ -2,79 +2,9 @@
 #define MOVING_MODULE_H
 
 #include "../Module.h"
+#include "../circular_queue/CircularQueue.h"
 
 #include <devices.h>
-
-/**
- * Moving Module Commands
- */
-enum MovingModuleCommands {
-  /**
-   * Stop command
-   */
-  MOVING_MODULE_COMMAND_STOP = (0u),
-  /**
-   * Start command
-   */
-  MOVING_MODULE_COMMAND_START = (1u),
-  /**
-   * Move command
-   */
-  MOVING_MODULE_COMMAND_MOVE = (2u),
-  /**
-   * PWM command
-   */
-  MOVING_MODULE_COMMAND_PWM = (3u),
-  /**
-   * None
-   */
-  MOVING_MODULE_COMMAND_NONE
-};
-
-enum MovingModuleCommandAttribute {
-  /**
-   * All
-   */
-  MOVING_MODULE_COMMAND_ATTRIBUTE_ALL = (0u),
-  /**
-   * Right
-   */
-  MOVING_MODULE_COMMAND_ATTRIBUTE_RIGHT = (1u),
-  /**
-   * Left
-   */
-  MOVING_MODULE_COMMAND_ATTRIBUTE_LEFT = (2u),
-  /**
-   * None
-   */
-  MOVING_MODULE_COMMAND_ATTRIBUTE_NONE
-};
-
-enum MovingModuleDirection {
-  /**
-   * Forward command
-   */
-  MOVING_MODULE_DIRECTION_FORWARD = (0u),
-  /**
-   * Back command
-   */
-  MOVING_MODULE_DIRECTION_BACK = (1u),
-  /**
-   * Around command
-   */
-  MOVING_MODULE_DIRECTION_AROUND = (2u),
-  /**
-   * None
-   */
-  MOVING_MODULE_DIRECTION_NONE
-};
-
-struct MovingModuleInterface {
-  MovingModuleCommands command;
-  MovingModuleCommandAttribute commandAttribute;
-  MovingModuleDirection movingDirection;
-  uint16_t pwmValue;
-};
 
 class MovingModule : public Module {
 private:
@@ -85,17 +15,20 @@ private:
   uint32_t rightPinF;
   uint32_t rightPinB;
 
+private:
+  CircularQueue<MovingModuleInterface> &movingModuleCommands;
+
 public:
   /**
    * @brief Default constructor
    */
-  MovingModule(const double frequency, const uint32_t leftPinF, const uint32_t leftPinB, const uint32_t rightPinF, const uint32_t rightPinB);
+  MovingModule(CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftPinF, const uint32_t leftPinB, const uint32_t rightPinF, const uint32_t rightPinB);
   ErrorCode init(void);
   void mainFunction(void);
   /**
    * @brief Destructor
    */
-  ~MovingModule(void);
+  virtual ~MovingModule(void);
 
 private:
   void stopCommand(const MovingModuleCommandAttribute commandAttribute);

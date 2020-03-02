@@ -7,6 +7,8 @@
 
 #include <tasks.h>
 
+#include "modules/circular_queue/CircularQueue.h"
+#include "modules/cmd/CommandModule.h"
 #include "modules/moving/MovingModule.h"
 
 int main() {
@@ -16,7 +18,14 @@ int main() {
   uint32_t leftPinB = 1;
   uint32_t rightPinF = 2;
   uint32_t rightPinB = 3;
-  MovingModule movingModule(frequency, leftPinF, leftPinB, rightPinF, rightPinB);
+
+  CircularQueue<MovingModuleInterface> movingModuleCommands(10);
+  CommandModule commandModule(movingModuleCommands);
+  MovingModule movingModule(movingModuleCommands, frequency, leftPinF, leftPinB, rightPinF, rightPinB);
+
+  commandModule.init();
+  commandModule.mainFunction();
+
   movingModule.init();
   movingModule.mainFunction();
 
