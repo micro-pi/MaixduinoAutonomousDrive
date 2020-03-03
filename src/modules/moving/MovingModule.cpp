@@ -1,22 +1,26 @@
 #include "MovingModule.h"
 
-MovingModule::MovingModule(CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftPinF, const uint32_t leftPinB, const uint32_t rightPinF, const uint32_t rightPinB) : movingModuleCommands(movingModuleCmds) {
-  this->pwm0 = 0;
+MovingModule::MovingModule(CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftChannelF, const uint32_t leftChannelB, const uint32_t rightChannelF, const uint32_t rightChannelB) : movingModuleCommands(movingModuleCmds) {
+  this->pwm = 0;
   this->frequency = frequency;
-  this->leftPinF = leftPinF;
-  this->leftPinB = leftPinB;
-  this->rightPinF = rightPinF;
-  this->rightPinB = rightPinB;
+  this->leftChannelF = leftChannelF;
+  this->leftChannelB = leftChannelB;
+  this->rightChannelF = rightChannelF;
+  this->rightChannelB = rightChannelB;
 }
 
 ErrorCode MovingModule::init(void) {
   ErrorCode errorCode;
-  pwm0 = io_open("/dev/pwm0");
-  configASSERT(pwm0);
-  if (pwm0 == 0) {
+  this->pwm = io_open("/dev/pwm0");
+  configASSERT(this->pwm);
+  if (this->pwm == 0) {
     errorCode = E_NOK;
   } else {
-    pwm_set_frequency(pwm0, frequency);
+    pwm_set_frequency(this->pwm, this->frequency);
+    pwm_set_enable(this->pwm, this->leftChannelF, false);
+    pwm_set_enable(this->pwm, this->leftChannelB, false);
+    pwm_set_enable(this->pwm, this->rightChannelF, false);
+    pwm_set_enable(this->pwm, this->rightChannelB, false);
     errorCode = E_OK;
   }
 

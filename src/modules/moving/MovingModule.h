@@ -8,12 +8,12 @@
 
 class MovingModule : public Module {
 private:
-  handle_t pwm0;
+  handle_t pwm;
   double frequency;
-  uint32_t leftPinF;
-  uint32_t leftPinB;
-  uint32_t rightPinF;
-  uint32_t rightPinB;
+  uint32_t leftChannelF;
+  uint32_t leftChannelB;
+  uint32_t rightChannelF;
+  uint32_t rightChannelB;
 
 private:
   CircularQueue<MovingModuleInterface> &movingModuleCommands;
@@ -22,7 +22,7 @@ public:
   /**
    * @brief Default constructor
    */
-  MovingModule(CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftPinF, const uint32_t leftPinB, const uint32_t rightPinF, const uint32_t rightPinB);
+  MovingModule(CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftChannelF, const uint32_t leftChannelB, const uint32_t rightChannelF, const uint32_t rightChannelB);
   ErrorCode init(void);
   void mainFunction(void);
   /**
