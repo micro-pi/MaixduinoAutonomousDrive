@@ -1,6 +1,6 @@
 #include "MovingModule.h"
 
-MovingModule::MovingModule(CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftChannelF, const uint32_t leftChannelB, const uint32_t rightChannelF, const uint32_t rightChannelB) : movingModuleCommands(movingModuleCmds) {
+MovingModule::MovingModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftChannelF, const uint32_t leftChannelB, const uint32_t rightChannelF, const uint32_t rightChannelB) : Module(moduleName), movingModuleCommands(movingModuleCmds) {
   this->pwm = 0;
   this->frequency = frequency;
   this->leftChannelF = leftChannelF;
@@ -34,25 +34,25 @@ void MovingModule::mainFunction(void) {
   isNotEmpty = movingModuleCommands.deQueue(movingModuleInterface);
   if (true == isNotEmpty) {
     switch (movingModuleInterface.command) {
-      case MOVING_MODULE_COMMAND_STOP:
-        stopCommand(movingModuleInterface.commandAttribute);
-        break;
+    case MOVING_MODULE_COMMAND_STOP:
+      stopCommand(movingModuleInterface.commandAttribute);
+      break;
 
-      case MOVING_MODULE_COMMAND_START:
-        startCommand(movingModuleInterface.commandAttribute);
-        break;
+    case MOVING_MODULE_COMMAND_START:
+      startCommand(movingModuleInterface.commandAttribute);
+      break;
 
-      case MOVING_MODULE_COMMAND_MOVE:
-        moveCommand(movingModuleInterface.commandAttribute, movingModuleInterface.movingDirection, movingModuleInterface.pwmValue);
-        break;
+    case MOVING_MODULE_COMMAND_MOVE:
+      moveCommand(movingModuleInterface.commandAttribute, movingModuleInterface.movingDirection, movingModuleInterface.pwmValue);
+      break;
 
-      case MOVING_MODULE_COMMAND_PWM:
-        pwmCommand(movingModuleInterface.commandAttribute, movingModuleInterface.pwmValue);
-        break;
+    case MOVING_MODULE_COMMAND_PWM:
+      pwmCommand(movingModuleInterface.commandAttribute, movingModuleInterface.pwmValue);
+      break;
 
-      default:
-        /* Unsupported command */
-        break;
+    default:
+      /* Unsupported command */
+      break;
     }
   } else {
     /* MISRA : the queue is empty */

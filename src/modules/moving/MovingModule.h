@@ -22,7 +22,7 @@ public:
   /**
    * @brief Default constructor
    */
-  MovingModule(CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftChannelF, const uint32_t leftChannelB, const uint32_t rightChannelF, const uint32_t rightChannelB);
+  MovingModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftChannelF, const uint32_t leftChannelB, const uint32_t rightChannelF, const uint32_t rightChannelB);
   ErrorCode init(void);
   void mainFunction(void);
   /**

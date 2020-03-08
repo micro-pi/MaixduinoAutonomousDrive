@@ -12,7 +12,7 @@ public:
   /**
    * @brief Default constructor
    */
-  CommandModule(CircularQueue<MovingModuleInterface> &movingModuleCmds);
+  CommandModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds);
   ErrorCode init(void);
   void mainFunction(void);
   ~CommandModule(void);

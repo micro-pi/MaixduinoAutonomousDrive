@@ -12,25 +12,66 @@
 #include "modules/cmd/CommandModule.h"
 #include "modules/moving/MovingModule.h"
 
+static CircularQueue<MovingModuleInterface> movingModuleCommands(10);
+static CommandModule commandModule("Command Module", movingModuleCommands);
+static MovingModule movingModule("Moving Module", movingModuleCommands, MOVING_PWM_FREQUENCY, LEFT_CHANNEL_FORWARD, LEFT_CHANNEL_BACK, RIGHT_CHANNEL_FORWARD, RIGHT_CHANNEL_BACK);
+static CameraModule cameraModule("Camera Module");
+
+Module *modules[] = {
+    &commandModule,
+    &movingModule,
+    &cameraModule};
+
+void init() {
+  uint32_t n = sizeof(modules) / sizeof(Module *);
+  uint32_t i;
+
+  printf("Modules: %d\r\n", n);
+
+  for (i = 0; i < n; i++) {
+    printf("Init module '%s'\r\n", modules[i]->getName());
+    modules[i]->init();
+  }
+}
+
+void task100ms(void *arg) {
+  const TickType_t xFrequency = 100;
+  TickType_t xLastWakeTime;
+  uint32_t n = sizeof(modules) / sizeof(Module *);
+  uint32_t i;
+  /* Initialise the xLastWakeTime variable with the current time. */
+  xLastWakeTime = xTaskGetTickCount();
+
+  while (1) {
+    for (i = 0; i < n; i++) {
+      modules[i]->mainFunction();
+    }
+
+    /* Wait for the next cycle. */
+    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(xFrequency));
+  }
+}
+
 int main() {
   BaseType_t xReturn;
+  printf("Start init\r\n");
+  init();
+  printf("Initialized\r\n");
 
-  CircularQueue<MovingModuleInterface> movingModuleCommands(10);
-  CommandModule commandModule(movingModuleCommands);
-  MovingModule movingModule(movingModuleCommands, MOVING_PWM_FREQUENCY, LEFT_CHANNEL_FORWARD, LEFT_CHANNEL_BACK, RIGHT_CHANNEL_FORWARD, RIGHT_CHANNEL_BACK);
-  CameraModule cameraModule;
-
-  commandModule.init();
-  movingModule.init();
-  cameraModule.init();
-
-  commandModule.mainFunction();
-  movingModule.mainFunction();
-  cameraModule.mainFunction();
-
+  printf("Run task %s\r\n", "vPowerBlinkTaskCore0");
   xReturn = xTaskCreateAtProcessor(CORE_0, &vPowerBlinkTaskCore0, "vPowerBlinkTaskCore0", 256, NULL, 2, NULL);
   if (xReturn != pdPASS) {
     printf("Task %s run problem\r\n", "vPowerBlinkTaskCore0");
+  } else {
+    printf("Rask %s is running\r\n", "vPowerBlinkTaskCore0");
+  }
+
+  printf("Run task %s\r\n", "task100ms");
+  xReturn = xTaskCreateAtProcessor(CORE_1, &task100ms, "task100ms", 4096, NULL, 2, NULL);
+  if (xReturn != pdPASS) {
+    printf("Task %s run problem\r\n", "task100ms");
+  } else {
+    printf("Rask %s is running\r\n", "task100ms");
   }
 
   for (;;) {

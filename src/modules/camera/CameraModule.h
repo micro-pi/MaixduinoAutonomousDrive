@@ -11,7 +11,7 @@ public:
   /**
    * @brief Default constructor
    */
-  CameraModule(void);
+  CameraModule(const char *moduleName);
   ErrorCode init(void);
   void mainFunction(void);
   /**

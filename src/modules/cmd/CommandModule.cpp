@@ -1,6 +1,6 @@
 #include "CommandModule.h"
 
-CommandModule::CommandModule(CircularQueue<MovingModuleInterface> &movingModuleCmds) : movingModuleCommands(movingModuleCmds) {
+CommandModule::CommandModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds) : Module(moduleName), movingModuleCommands(movingModuleCmds) {
 }
 
 ErrorCode CommandModule::init(void) {

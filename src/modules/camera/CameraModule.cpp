@@ -1,6 +1,6 @@
 #include "CameraModule.h"
 
-CameraModule::CameraModule(void) {
+CameraModule::CameraModule(const char *moduleName) : Module(moduleName) {
 }
 
 ErrorCode CameraModule::init(void) {
