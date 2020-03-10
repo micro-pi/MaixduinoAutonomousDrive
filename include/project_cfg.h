@@ -18,6 +18,8 @@
 #define LEFT_CHANNEL_BACK (1)
 #define RIGHT_CHANNEL_FORWARD (2)
 #define RIGHT_CHANNEL_BACK (3)
+#define I2C0_SDA_PIN (31)
+#define I2C0_SCLK_PIN (30)
 
 #define MOVING_PWM_FREQUENCY (2000)
 
