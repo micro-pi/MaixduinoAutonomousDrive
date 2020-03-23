@@ -18,10 +18,31 @@
 #define LEFT_CHANNEL_BACK (1)
 #define RIGHT_CHANNEL_FORWARD (2)
 #define RIGHT_CHANNEL_BACK (3)
+
+#define MOVING_PWM_FREQUENCY (2000)
+
+/* I2C0 */
 #define I2C0_SDA_PIN (31)
 #define I2C0_SCLK_PIN (30)
 
-#define MOVING_PWM_FREQUENCY (2000)
+/* SPI0 Pins */
+#define SPI_SLAVE_SELECT (0)
+/**
+ * ESP32 Chip Select
+ */
+#define SPI_MASTER_CS_PIN (25)
+/**
+ * Master In Slave Out
+ */
+#define SPI_MASTER_MISO_PIN (26)
+/**
+ * Serial Clock
+ */
+#define SPI_MASTER_CLK_PIN (27)
+/**
+ * Master Out Slave In
+ */
+#define SPI_MASTER_MOSI_PIN (28)
 
 #define CORE_0 (0)
 #define CORE_1 (1)

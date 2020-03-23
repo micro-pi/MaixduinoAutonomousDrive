@@ -12,29 +12,72 @@
 #include "modules/cmd/CommandModule.h"
 #include "modules/moving/MovingModule.h"
 
+#include "devices/esp32/ESP32.h"
 #include "devices/itg3200/ITG3200.h"
+#include "devices/main_motor/MainMotor.h"
+
+static ESP32 esp32("ESP32");
+static ITG3200 gyro("ITG3205");
+static MainMotor mainMotorLeft("Left Main Motor");
+static MainMotor mainMotorRight("Right Main Motor");
 
 static CircularQueue<MovingModuleInterface> movingModuleCommands(10);
 static CommandModule commandModule("Command Module", movingModuleCommands);
-static MovingModule movingModule("Moving Module", movingModuleCommands, MOVING_PWM_FREQUENCY, LEFT_CHANNEL_FORWARD, LEFT_CHANNEL_BACK, RIGHT_CHANNEL_FORWARD, RIGHT_CHANNEL_BACK);
+static MovingModule movingModule("Moving Module", movingModuleCommands, mainMotorLeft, mainMotorRight);
 static CameraModule cameraModule("Camera Module");
 
-Module *MODULES[] = {
+static Device *DEVICES[] = {
+    &esp32,
+    &gyro,
+    &mainMotorLeft,
+    &mainMotorRight,
+};
+
+static Module *MODULES[] = {
     &commandModule,
     &movingModule,
-    &cameraModule};
+    &cameraModule,
+};
 
 #define NUM_OF_MODULES (sizeof(MODULES) / sizeof(Module *))
+#define NUM_OF_DEVICES (sizeof(DEVICES) / sizeof(Device *))
 
 void init() {
-  uint32_t n = NUM_OF_MODULES;
+  uint32_t numOfModules = NUM_OF_MODULES;
+  uint32_t numOfDevices = NUM_OF_DEVICES;
   uint32_t i;
 
   handle_t i2c0;
+  handle_t spi0;
+  handle_t pwm0;
 
+  pwm0 = io_open("/dev/pwm0");
   i2c0 = io_open("/dev/i2c0");
-  ITG3200 gyro("ITG3205", i2c0);
-  gyro.begin();
+  spi0 = io_open("/dev/spi0");
+
+  /* Before init devices configurations */
+  mainMotorLeft.setPwm(pwm0);
+  mainMotorLeft.setFrequency(MOVING_PWM_FREQUENCY);
+  mainMotorLeft.setForwardChannel(LEFT_CHANNEL_FORWARD);
+  mainMotorLeft.setBackwardChannel(LEFT_CHANNEL_BACK);
+
+  mainMotorRight.setPwm(pwm0);
+  mainMotorRight.setFrequency(MOVING_PWM_FREQUENCY);
+  mainMotorRight.setForwardChannel(RIGHT_CHANNEL_FORWARD);
+  mainMotorRight.setBackwardChannel(RIGHT_CHANNEL_BACK);
+
+  esp32.setSpi(spi0);
+  esp32.setMode(SPI_MODE_2);
+  esp32.setClockRate(8000000);
+
+  gyro.setI2c(i2c0);
+
+  printf("Devices: %d\r\n", numOfDevices);
+  for (i = 0; i < numOfDevices; i++) {
+    DEVICES[i]->begin();
+  }
+  /* TODO: Add methods to check if devices are present and initialized */
+  /* After init devices configurations */
   gyro.setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
   gyro.setDigitalLowPassFilter(BANDWIDTH_5HZ_RATE_1KHZ);
   gyro.setRawDataReadyEnabled(true);
@@ -62,9 +105,9 @@ void init() {
   printf("Z in standby mode    : 0x%02x\r\n", gyro.isStandbyModeZ());
   printf("Clock source         : 0x%02x\r\n", gyro.getClockSource());
 
-  printf("Modules: %d\r\n", n);
+  printf("Modules: %d\r\n", numOfModules);
 
-  for (i = 0; i < n; i++) {
+  for (i = 0; i < numOfModules; i++) {
     printf("Init module '%s'\r\n", MODULES[i]->getName());
     MODULES[i]->init();
   }

@@ -1,6 +1,7 @@
 #ifndef MOVING_MODULE_H
 #define MOVING_MODULE_H
 
+#include "../../devices/main_motor/MainMotor.h"
 #include "../Module.h"
 #include "../circular_queue/CircularQueue.h"
 
@@ -8,21 +9,15 @@
 
 class MovingModule : public Module {
 private:
-  handle_t pwm;
-  double frequency;
-  uint32_t leftChannelF;
-  uint32_t leftChannelB;
-  uint32_t rightChannelF;
-  uint32_t rightChannelB;
-
-private:
   CircularQueue<MovingModuleInterface> &movingModuleCommands;
+  MainMotor &mainMotorLeft;
+  MainMotor &mainMotorRight;
 
 public:
   /**
    * @brief Default constructor
    */
-  MovingModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds, const double frequency, const uint32_t leftChannelF, const uint32_t leftChannelB, const uint32_t rightChannelF, const uint32_t rightChannelB);
+  MovingModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds, MainMotor &mainMotorLeft, MainMotor &mainMotorRight);
   ErrorCode init(void);
   void mainFunction(void);
   /**

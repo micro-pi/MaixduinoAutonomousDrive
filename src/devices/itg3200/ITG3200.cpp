@@ -3,7 +3,11 @@
 #include <devices.h>
 #include <fpioa.h>
 
-ITG3200::ITG3200(const char *deviceName, handle_t i2c) : Device(deviceName) {
+ITG3200::ITG3200(const char *deviceName) : Device(deviceName) {
+  this->i2c = 0;
+}
+
+void ITG3200::setI2c(const handle_t i2c) {
   this->i2c = i2c;
 }
 
@@ -11,17 +15,19 @@ ITG3200::ITG3200(const char *deviceName, handle_t i2c) : Device(deviceName) {
  * @brief Initialization for ITG3200.
  */
 void ITG3200::begin() {
-  this->device = i2c_get_device(this->i2c, GYRO_ADDRESS, 7);
-  i2c_dev_set_clock_rate(this->device, 400000);
+  if (this->i2c > 0) {
+    this->device = i2c_get_device(this->i2c, GYRO_ADDRESS, 7);
+    i2c_dev_set_clock_rate(this->device, 400000);
 
-  /* send a reset to the device */
-  this->resetDevice();
+    /* send a reset to the device */
+    this->resetDevice();
 
-  /* sample rate divider */
-  this->setSampleRateDivider(0U);
+    /* sample rate divider */
+    this->setSampleRateDivider(0U);
 
-  /* +/-2000 degrees/s (default value) */
-  this->setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
+    /* +/-2000 degrees/s (default value) */
+    this->setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
+  }
 }
 
 /**

@@ -11,6 +11,6 @@
     "[cpp]": {
         "editor.defaultFormatter": "ms-vscode.cpptools"
     },
-    "workbench.colorTheme": "Quiet Light",
+    "workbench.colorTheme": "Monokai Dimmed",
     "editor.tabSize": 2
 }

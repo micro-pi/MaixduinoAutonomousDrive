@@ -116,7 +116,8 @@ private:
   int16_t zOffset;
 
 public:
-  ITG3200(const char *deviceName, handle_t i2c);
+  ITG3200(const char *deviceName);
+  void setI2c(const handle_t i2c);
   void begin(void);
   double getTemperature(void);
   void getXYZ(int16_t *x, int16_t *y, int16_t *z);
