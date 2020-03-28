@@ -186,6 +186,7 @@ void task1000ms(void *arg) {
           break;
 
         default:
+          LOGW(TAG, "Unknown type '%d'", spi0Esp32RxBuffer.type);
           break;
       }
     } else {
