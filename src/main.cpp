@@ -143,7 +143,9 @@ void task100ms(void *arg) {
 }
 void task1000ms(void *arg) {
   const TickType_t xFrequency = 1000;
+  uint16_t crc;
   TickType_t xLastWakeTime;
+  MovingModuleInterface movingModuleInterface;
 
   /* Initialise the xLastWakeTime variable with the current time. */
   xLastWakeTime = xTaskGetTickCount();
@@ -155,12 +157,40 @@ void task1000ms(void *arg) {
     spi0Esp32TxBuffer.size = strlen((char *)spi0Esp32TxBuffer.data);
     esp32.transferFullDuplex(spi0Esp32TxBuffer, spi0Esp32RxBuffer);
 
-    LOGI(TAG, "Rx.id  : %d ", spi0Esp32RxBuffer.id);
-    LOGI(TAG, "Rx.type: %d ", spi0Esp32RxBuffer.type);
-    LOGI(TAG, "Rx.size: %d ", spi0Esp32RxBuffer.size);
-    LOGI(TAG, "Rx.data: %s ", (char *)spi0Esp32RxBuffer.data);
-    LOGI(TAG, "Rx.crc : %04X ", spi0Esp32RxBuffer.crc);
-    LOGI(TAG, "   crc : %04X ", k210Esp32DataCrc16(spi0Esp32RxBuffer));
+    crc = k210Esp32DataCrc16(spi0Esp32RxBuffer);
+    if (spi0Esp32RxBuffer.crc == crc) {
+      switch (spi0Esp32RxBuffer.type) {
+        case EMPTY:
+          break;
+
+        case STRING:
+          LOGI(TAG, "Rx.id  : %d ", spi0Esp32RxBuffer.id);
+          LOGI(TAG, "Rx.type: %d ", spi0Esp32RxBuffer.type);
+          LOGI(TAG, "Rx.size: %d ", spi0Esp32RxBuffer.size);
+          LOGI(TAG, "Rx.data: %s ", (char *)spi0Esp32RxBuffer.data);
+          LOGI(TAG, "Rx.crc : %04X ", spi0Esp32RxBuffer.crc);
+          LOGI(TAG, "   crc : %04X ", crc);
+          break;
+
+        case CMD:
+          memcpy(&movingModuleInterface, spi0Esp32RxBuffer.data, sizeof(MovingModuleInterface));
+
+          LOGI(TAG, "Rx.CMD : %d ", movingModuleInterface.command);
+          LOGI(TAG, "Rx.ATTR: %d ", movingModuleInterface.commandAttribute);
+          LOGI(TAG, "Rx.DIR : %d ", movingModuleInterface.movingDirection);
+          LOGI(TAG, "Rx.PWM : %d ", movingModuleInterface.pwmValue);
+          break;
+
+        case BYTES:
+          /* code */
+          break;
+
+        default:
+          break;
+      }
+    } else {
+      LOGW(TAG, "CRC ERR: RX(%d) != CRC(%d)", spi0Esp32RxBuffer.crc, crc);
+    }
 
     /* Wait for the next cycle. */
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(xFrequency));

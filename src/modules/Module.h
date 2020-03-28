@@ -1,7 +1,7 @@
 #ifndef MODULE_H
 #define MODULE_H
 
-#include "ModuleTypes.h"
+#include "../common/common.h"
 
 class Module {
 private:
