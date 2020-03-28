@@ -4,7 +4,7 @@
 #include <pin_cfg.h>
 
 #define PIN_FUNCTION(PIN) (static_cast<fpioa_function_t>(FUNC_GPIOHS0 + PIN))
-#define LED_PIN (14)
+#define POWER_LED_PIN (14)
 
 #define LEFT_PIN_FORWARD (21)
 #define LEFT_PIN_BACK (22)
@@ -38,7 +38,7 @@
 /**
  * Serial Clock
  */
-#define SPI_MASTER_CLK_PIN (27)
+#define SPI_MASTER_SCLK_PIN (27)
 /**
  * Master Out Slave In
  */

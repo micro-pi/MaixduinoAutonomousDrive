@@ -6,21 +6,20 @@
 #include <string.h>
 #include <task.h>
 
-#include <tasks.h>
+#include "tasks/tasks.h"
 
 #include "modules/camera/CameraModule.h"
 #include "modules/circular_queue/CircularQueue.h"
 #include "modules/cmd/CommandModule.h"
 #include "modules/moving/MovingModule.h"
 
-#include "devices/esp32/ESP32.h"
-#include "devices/itg3200/ITG3200.h"
-#include "devices/main_motor/MainMotor.h"
+#include "AllDevices.h"
 
-static ESP32 esp32("ESP32");
-static ITG3200 gyro("ITG3205");
-static MainMotor mainMotorLeft("Left Main Motor");
-static MainMotor mainMotorRight("Right Main Motor");
+Led powerLed("Power LED");
+ESP32 esp32("ESP32");
+ITG3200 gyro("ITG3205");
+MainMotor mainMotorLeft("Left Main Motor");
+MainMotor mainMotorRight("Right Main Motor");
 
 static CircularQueue<MovingModuleInterface> movingModuleCommands(10);
 static CommandModule commandModule("Command Module", movingModuleCommands);
@@ -28,6 +27,7 @@ static MovingModule movingModule("Moving Module", movingModuleCommands, mainMoto
 static CameraModule cameraModule("Camera Module");
 
 static Device *DEVICES[] = {
+    &powerLed,
     &esp32,
     &gyro,
     &mainMotorLeft,
@@ -51,15 +51,20 @@ void init() {
   uint32_t numOfDevices = NUM_OF_DEVICES;
   uint32_t i;
 
+  handle_t gpio0;
   handle_t i2c0;
   handle_t spi0;
   handle_t pwm0;
 
+  gpio0 = io_open("/dev/gpio0");
   pwm0 = io_open("/dev/pwm0");
   i2c0 = io_open("/dev/i2c0");
   spi0 = io_open("/dev/spi0");
 
   /* Before init devices configurations */
+  powerLed.setGpio(gpio0);
+  powerLed.setPin(POWER_LED_PIN);
+
   mainMotorLeft.setPwm(pwm0);
   mainMotorLeft.setFrequency(MOVING_PWM_FREQUENCY);
   mainMotorLeft.setForwardChannel(LEFT_CHANNEL_FORWARD);
