@@ -3,6 +3,7 @@
 #include <FreeRTOS.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <task.h>
 
 #include <tasks.h>
@@ -33,17 +34,20 @@ static Device *DEVICES[] = {
     &mainMotorRight,
 };
 
-static Module *MODULES[] = {
+static Module *MODULES_100MS[] = {
     &commandModule,
     &movingModule,
     &cameraModule,
 };
 
-#define NUM_OF_MODULES (sizeof(MODULES) / sizeof(Module *))
+#define NUM_OF_MODULES_100MS (sizeof(MODULES_100MS) / sizeof(Module *))
 #define NUM_OF_DEVICES (sizeof(DEVICES) / sizeof(Device *))
 
+static K210ESP32Data spi0Esp32TxBuffer;
+static K210ESP32Data spi0Esp32RxBuffer;
+
 void init() {
-  uint32_t numOfModules = NUM_OF_MODULES;
+  uint32_t numOfModules = NUM_OF_MODULES_100MS;
   uint32_t numOfDevices = NUM_OF_DEVICES;
   uint32_t i;
 
@@ -68,7 +72,7 @@ void init() {
 
   esp32.setSpi(spi0);
   esp32.setMode(SPI_MODE_2);
-  esp32.setClockRate(8000000);
+  esp32.setClockRate(SPI_MASTER_CLOCK_RATE);
 
   gyro.setI2c(i2c0);
 
@@ -108,23 +112,41 @@ void init() {
   printf("Modules: %d\r\n", numOfModules);
 
   for (i = 0; i < numOfModules; i++) {
-    printf("Init module '%s'\r\n", MODULES[i]->getName());
-    MODULES[i]->init();
+    printf("Init module '%s'\r\n", MODULES_100MS[i]->getName());
+    MODULES_100MS[i]->init();
   }
 }
 
 void task100ms(void *arg) {
   const TickType_t xFrequency = 100;
   TickType_t xLastWakeTime;
-  uint32_t n = NUM_OF_MODULES;
+  uint32_t n = NUM_OF_MODULES_100MS;
   uint32_t i;
   /* Initialise the xLastWakeTime variable with the current time. */
   xLastWakeTime = xTaskGetTickCount();
 
   while (1) {
     for (i = 0; i < n; i++) {
-      MODULES[i]->mainFunction();
+      MODULES_100MS[i]->mainFunction();
     }
+
+    /* Wait for the next cycle. */
+    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(xFrequency));
+  }
+}
+void task1000ms(void *arg) {
+  const TickType_t xFrequency = 1000;
+  TickType_t xLastWakeTime;
+
+  /* Initialise the xLastWakeTime variable with the current time. */
+  xLastWakeTime = xTaskGetTickCount();
+
+  while (1) {
+    sprintf((char *)spi0Esp32TxBuffer.data, "Hello ESP32, xLastWakeTime: %d", xLastWakeTime);
+    spi0Esp32TxBuffer.type = STRING;
+    spi0Esp32TxBuffer.id = (uint8_t)xLastWakeTime;
+    spi0Esp32TxBuffer.size = strlen((char *)spi0Esp32TxBuffer.data);
+    esp32.transferFullDuplex(spi0Esp32TxBuffer, spi0Esp32RxBuffer);
 
     /* Wait for the next cycle. */
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(xFrequency));
@@ -143,6 +165,14 @@ int main() {
     printf("Task %s run problem\r\n", "vPowerBlinkTaskCore0");
   } else {
     printf("Rask %s is running\r\n", "vPowerBlinkTaskCore0");
+  }
+
+  printf("Run task %s\r\n", "task1000ms");
+  xReturn = xTaskCreateAtProcessor(CORE_0, &task1000ms, "task1000ms", 4096, NULL, 2, NULL);
+  if (xReturn != pdPASS) {
+    printf("Task %s run problem\r\n", "task1000ms");
+  } else {
+    printf("Rask %s is running\r\n", "task1000ms");
   }
 
   printf("Run task %s\r\n", "task100ms");

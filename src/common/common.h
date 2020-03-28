@@ -34,9 +34,13 @@ typedef struct {
 
 #define POLYNOM CRC16_DNP // Define the used polynom from one of the aboves
 
-// It calculates the new crc16 with the newByte. Variable crcValue is the actual or initial value (0).
+/**
+ *  It calculates the new crc16 with the newByte. Variable crcValue is the actual or initial value (0). 
+ */
 uint16_t crc16(uint16_t crcValue, uint8_t newByte);
 
 uint16_t arrayCrc16(uint8_t *data, uint8_t len);
+
+uint16_t k210Esp32DataCrc16(K210ESP32Data &k210Esp32Data);
 
 #endif

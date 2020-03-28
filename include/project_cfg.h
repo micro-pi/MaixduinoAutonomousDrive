@@ -43,6 +43,10 @@
  * Master Out Slave In
  */
 #define SPI_MASTER_MOSI_PIN (28)
+/**
+ * Master Clock Rate
+ */
+#define SPI_MASTER_CLOCK_RATE (8000000)
 
 #define CORE_0 (0)
 #define CORE_1 (1)

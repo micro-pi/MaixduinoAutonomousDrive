@@ -19,7 +19,7 @@ public:
   void setMode(const spi_mode_t mode);
   void setClockRate(const double clockRate);
   void begin(void);
-  int transferFullDuplex(const K210ESP32Data *spi0Esp32TxBuffer, K210ESP32Data *spi0Esp32RxBuffer);
+  int transferFullDuplex(K210ESP32Data &spi0Esp32TxBuffer, K210ESP32Data &spi0Esp32RxBuffer);
   virtual ~ESP32(void);
 };
 
