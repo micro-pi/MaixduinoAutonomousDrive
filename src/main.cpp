@@ -2,8 +2,8 @@
 
 #include <FreeRTOS.h>
 
-#include <stdio.h>
 #include <string.h>
+#include <syslog.h>
 #include <task.h>
 
 #include "tasks/tasks.h"
@@ -14,6 +14,8 @@
 #include "modules/moving/MovingModule.h"
 
 #include "AllDevices.h"
+
+static const char *TAG = "MAD_K210";
 
 Led powerLed("Power LED");
 ESP32 esp32("ESP32");
@@ -81,7 +83,7 @@ void init() {
 
   gyro.setI2c(i2c0);
 
-  printf("Devices: %d\r\n", numOfDevices);
+  LOGI(TAG, "Devices: %d", numOfDevices);
   for (i = 0; i < numOfDevices; i++) {
     DEVICES[i]->begin();
   }
@@ -91,33 +93,33 @@ void init() {
   gyro.setDigitalLowPassFilter(BANDWIDTH_5HZ_RATE_1KHZ);
   gyro.setRawDataReadyEnabled(true);
 
-  printf("Who Am I             : 0x%02x\r\n", gyro.whoAmI());
-  printf("\r\n----Sample Rate Divider----\r\n");
-  printf("Sample Rate Divider  : 0x%02x\r\n", gyro.getSampleRateDivider());
-  printf("\r\n------DLPF, Full Scale-----\r\n");
-  printf("Full scale selection : 0x%02x\r\n", gyro.getFullScaleSelection());
-  printf("Digital low pass     : 0x%02x\r\n", gyro.getDigitalLowPassFilter());
-  printf("\r\n--Interrupt Configuration--\r\n");
-  printf("Logic level          : 0x%02x\r\n", gyro.getLogicLevelIntOutputPin());
-  printf("Drive type           : 0x%02x\r\n", gyro.getDriveTypeIntOutputPin());
-  printf("Latch mode           : 0x%02x\r\n", gyro.getLatchMode());
-  printf("Latch clear method   : 0x%02x\r\n", gyro.getLatchClearMethod());
-  printf("Interrupt Enabled    : 0x%02x\r\n", gyro.isInterruptEnabled());
-  printf("Raw data ready       : 0x%02x\r\n", gyro.isRawDataReadyEnabled());
-  printf("\r\n------Interrupt Status-----\r\n");
-  printf("PLL ready            : 0x%02x\r\n", gyro.isPllReady());
-  printf("Raw data is ready    : 0x%02x\r\n", gyro.isRawDataReady());
-  printf("\r\n------Power Management-----\r\n");
-  printf("Low power sleep mode : 0x%02x\r\n", gyro.isSleepMode());
-  printf("X in standby mode    : 0x%02x\r\n", gyro.isStandbyModeX());
-  printf("Y in standby mode    : 0x%02x\r\n", gyro.isStandbyModeY());
-  printf("Z in standby mode    : 0x%02x\r\n", gyro.isStandbyModeZ());
-  printf("Clock source         : 0x%02x\r\n", gyro.getClockSource());
+  LOGI(TAG, "Who Am I             : 0x%02x", gyro.whoAmI());
+  LOGI(TAG, "----Sample Rate Divider----");
+  LOGI(TAG, "Sample Rate Divider  : 0x%02x", gyro.getSampleRateDivider());
+  LOGI(TAG, "------DLPF, Full Scale-----");
+  LOGI(TAG, "Full scale selection : 0x%02x", gyro.getFullScaleSelection());
+  LOGI(TAG, "Digital low pass     : 0x%02x", gyro.getDigitalLowPassFilter());
+  LOGI(TAG, "--Interrupt Configuration--");
+  LOGI(TAG, "Logic level          : 0x%02x", gyro.getLogicLevelIntOutputPin());
+  LOGI(TAG, "Drive type           : 0x%02x", gyro.getDriveTypeIntOutputPin());
+  LOGI(TAG, "Latch mode           : 0x%02x", gyro.getLatchMode());
+  LOGI(TAG, "Latch clear method   : 0x%02x", gyro.getLatchClearMethod());
+  LOGI(TAG, "Interrupt Enabled    : 0x%02x", gyro.isInterruptEnabled());
+  LOGI(TAG, "Raw data ready       : 0x%02x", gyro.isRawDataReadyEnabled());
+  LOGI(TAG, "------Interrupt Status-----");
+  LOGI(TAG, "PLL ready            : 0x%02x", gyro.isPllReady());
+  LOGI(TAG, "Raw data is ready    : 0x%02x", gyro.isRawDataReady());
+  LOGI(TAG, "------Power Management-----");
+  LOGI(TAG, "Low power sleep mode : 0x%02x", gyro.isSleepMode());
+  LOGI(TAG, "X in standby mode    : 0x%02x", gyro.isStandbyModeX());
+  LOGI(TAG, "Y in standby mode    : 0x%02x", gyro.isStandbyModeY());
+  LOGI(TAG, "Z in standby mode    : 0x%02x", gyro.isStandbyModeZ());
+  LOGI(TAG, "Clock source         : 0x%02x", gyro.getClockSource());
 
-  printf("Modules: %d\r\n", numOfModules);
+  LOGI(TAG, "Modules: %d", numOfModules);
 
   for (i = 0; i < numOfModules; i++) {
-    printf("Init module '%s'\r\n", MODULES_100MS[i]->getName());
+    LOGI(TAG, "Init module '%s'", MODULES_100MS[i]->getName());
     MODULES_100MS[i]->init();
   }
 }
@@ -153,6 +155,13 @@ void task1000ms(void *arg) {
     spi0Esp32TxBuffer.size = strlen((char *)spi0Esp32TxBuffer.data);
     esp32.transferFullDuplex(spi0Esp32TxBuffer, spi0Esp32RxBuffer);
 
+    LOGI(TAG, "Rx.id  : %d ", spi0Esp32RxBuffer.id);
+    LOGI(TAG, "Rx.type: %d ", spi0Esp32RxBuffer.type);
+    LOGI(TAG, "Rx.size: %d ", spi0Esp32RxBuffer.size);
+    LOGI(TAG, "Rx.data: %s ", (char *)spi0Esp32RxBuffer.data);
+    LOGI(TAG, "Rx.crc : %04X ", spi0Esp32RxBuffer.crc);
+    LOGI(TAG, "   crc : %04X ", k210Esp32DataCrc16(spi0Esp32RxBuffer));
+
     /* Wait for the next cycle. */
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(xFrequency));
   }
@@ -160,32 +169,32 @@ void task1000ms(void *arg) {
 
 int main() {
   BaseType_t xReturn;
-  printf("Start init\r\n");
+  LOGI(TAG, "Start init");
   init();
-  printf("Initialized\r\n");
+  LOGI(TAG, "Initialized");
 
-  printf("Run task %s\r\n", "vPowerBlinkTaskCore0");
+  LOGI(TAG, "Run task %s", "vPowerBlinkTaskCore0");
   xReturn = xTaskCreateAtProcessor(CORE_0, &vPowerBlinkTaskCore0, "vPowerBlinkTaskCore0", 256, NULL, 2, NULL);
   if (xReturn != pdPASS) {
-    printf("Task %s run problem\r\n", "vPowerBlinkTaskCore0");
+    LOGI(TAG, "Task %s run problem", "vPowerBlinkTaskCore0");
   } else {
-    printf("Rask %s is running\r\n", "vPowerBlinkTaskCore0");
+    LOGI(TAG, "Rask %s is running", "vPowerBlinkTaskCore0");
   }
 
-  printf("Run task %s\r\n", "task1000ms");
+  LOGI(TAG, "Run task %s", "task1000ms");
   xReturn = xTaskCreateAtProcessor(CORE_0, &task1000ms, "task1000ms", 4096, NULL, 2, NULL);
   if (xReturn != pdPASS) {
-    printf("Task %s run problem\r\n", "task1000ms");
+    LOGI(TAG, "Task %s run problem", "task1000ms");
   } else {
-    printf("Rask %s is running\r\n", "task1000ms");
+    LOGI(TAG, "Rask %s is running", "task1000ms");
   }
 
-  printf("Run task %s\r\n", "task100ms");
+  LOGI(TAG, "Run task %s", "task100ms");
   xReturn = xTaskCreateAtProcessor(CORE_1, &task100ms, "task100ms", 4096, NULL, 2, NULL);
   if (xReturn != pdPASS) {
-    printf("Task %s run problem\r\n", "task100ms");
+    LOGI(TAG, "Task %s run problem", "task100ms");
   } else {
-    printf("Rask %s is running\r\n", "task100ms");
+    LOGI(TAG, "Rask %s is running", "task100ms");
   }
 
   for (;;) {
