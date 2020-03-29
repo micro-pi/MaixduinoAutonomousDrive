@@ -3,5 +3,6 @@
 
 extern void vPowerBlinkTaskCore0(void *arg);
 extern void task100ms(void *arg);
+extern void task1000ms(void *arg);
 
 #endif
