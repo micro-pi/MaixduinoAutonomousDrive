@@ -19,8 +19,16 @@ public:
   void setFrequency(const double frequency);
   void setForwardChannel(const uint32_t forwardChannel);
   void setBackwardChannel(const uint32_t backwardChannel);
+  void goForward(const double dutyCyclePercentage);
+  void goBackward(const double dutyCyclePercentage);
+  void setDutyCycleForward(const double dutyCyclePercentage);
+  void setDutyCycleBackward(const double dutyCyclePercentage);
+  void stop(void);
   void begin(void);
   virtual ~MainMotor(void);
+
+private:
+  double calcDutyCyclePercentage(const double dutyCyclePercentage);
 };
 
 #endif

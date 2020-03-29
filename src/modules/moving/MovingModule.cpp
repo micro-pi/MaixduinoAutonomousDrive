@@ -62,14 +62,160 @@ MovingModule::~MovingModule(void) {
 }
 
 void MovingModule::stopCommand(const MovingModuleCommandAttribute commandAttribute) {
-  /* TODO: look here https://github.com/kendryte/kendryte-freertos-demo/blob/develop/pwm/main.c */
+  switch (commandAttribute) {
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_ALL:
+      if (this->mainMotorLeft != nullptr) {
+        this->mainMotorLeft->stop();
+      }
+      if (this->mainMotorRight != nullptr) {
+        this->mainMotorRight->stop();
+      }
+      break;
+
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_RIGHT:
+      if (this->mainMotorRight != nullptr) {
+        this->mainMotorRight->stop();
+      }
+      break;
+
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_LEFT:
+      if (this->mainMotorLeft != nullptr) {
+        this->mainMotorLeft->stop();
+      }
+      break;
+
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_NONE:
+      break;
+
+    default:
+      break;
+  }
 }
 
 void MovingModule::startCommand(const MovingModuleCommandAttribute commandAttribute) {
 }
 
 void MovingModule::moveCommand(const MovingModuleCommandAttribute commandAttribute, const MovingModuleDirection movingDirection, const uint16_t pwmValue) {
+  switch (commandAttribute) {
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_ALL:
+      switch (movingDirection) {
+        case MOVING_MODULE_DIRECTION_FORWARD:
+          if (this->mainMotorLeft != nullptr) {
+            this->mainMotorLeft->goForward(getDutyCyclePercentage(pwmValue));
+          }
+          if (this->mainMotorRight != nullptr) {
+            this->mainMotorRight->goForward(getDutyCyclePercentage(pwmValue));
+          }
+          break;
+
+        case MOVING_MODULE_DIRECTION_BACK:
+          if (this->mainMotorLeft != nullptr) {
+            this->mainMotorLeft->goBackward(getDutyCyclePercentage(pwmValue));
+          }
+          if (this->mainMotorRight != nullptr) {
+            this->mainMotorRight->goBackward(getDutyCyclePercentage(pwmValue));
+          }
+          break;
+
+        case MOVING_MODULE_DIRECTION_AROUND_LF_RB:
+          if (this->mainMotorLeft != nullptr) {
+            this->mainMotorLeft->goForward(getDutyCyclePercentage(pwmValue));
+          }
+          if (this->mainMotorRight != nullptr) {
+            this->mainMotorRight->goBackward(getDutyCyclePercentage(pwmValue));
+          }
+          break;
+
+        case MOVING_MODULE_DIRECTION_AROUND_LB_RF:
+          if (this->mainMotorLeft != nullptr) {
+            this->mainMotorLeft->goBackward(getDutyCyclePercentage(pwmValue));
+          }
+          if (this->mainMotorRight != nullptr) {
+            this->mainMotorRight->goForward(getDutyCyclePercentage(pwmValue));
+          }
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_RIGHT:
+      switch (movingDirection) {
+        case MOVING_MODULE_DIRECTION_FORWARD:
+          if (this->mainMotorRight != nullptr) {
+            this->mainMotorRight->goForward(getDutyCyclePercentage(pwmValue));
+          }
+          break;
+
+        case MOVING_MODULE_DIRECTION_BACK:
+          if (this->mainMotorRight != nullptr) {
+            this->mainMotorRight->goBackward(getDutyCyclePercentage(pwmValue));
+          }
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_LEFT:
+      switch (movingDirection) {
+        case MOVING_MODULE_DIRECTION_FORWARD:
+          if (this->mainMotorLeft != nullptr) {
+            this->mainMotorLeft->goForward(getDutyCyclePercentage(pwmValue));
+          }
+          break;
+
+        case MOVING_MODULE_DIRECTION_BACK:
+          if (this->mainMotorLeft != nullptr) {
+            this->mainMotorLeft->goBackward(getDutyCyclePercentage(pwmValue));
+          }
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    default:
+      break;
+  }
 }
 
 void MovingModule::pwmCommand(const MovingModuleCommandAttribute commandAttribute, const uint16_t pwmValue) {
+  switch (commandAttribute) {
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_ALL:
+      if (this->mainMotorLeft != nullptr) {
+        this->mainMotorLeft->setDutyCycleForward(getDutyCyclePercentage(pwmValue));
+        this->mainMotorLeft->setDutyCycleBackward(getDutyCyclePercentage(pwmValue));
+      }
+      if (this->mainMotorRight != nullptr) {
+        this->mainMotorRight->setDutyCycleForward(getDutyCyclePercentage(pwmValue));
+        this->mainMotorRight->setDutyCycleBackward(getDutyCyclePercentage(pwmValue));
+      }
+      break;
+
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_RIGHT:
+      if (this->mainMotorRight != nullptr) {
+        this->mainMotorRight->setDutyCycleForward(getDutyCyclePercentage(pwmValue));
+        this->mainMotorRight->setDutyCycleBackward(getDutyCyclePercentage(pwmValue));
+      }
+      break;
+
+    case MOVING_MODULE_COMMAND_ATTRIBUTE_LEFT:
+      if (this->mainMotorLeft != nullptr) {
+        this->mainMotorLeft->setDutyCycleForward(getDutyCyclePercentage(pwmValue));
+        this->mainMotorLeft->setDutyCycleBackward(getDutyCyclePercentage(pwmValue));
+      }
+      break;
+
+    default:
+      break;
+  }
+}
+
+double MovingModule::getDutyCyclePercentage(const uint16_t pwmValue) {
+  /* Resolution 0.001 */
+  return pwmValue * 0.001;
 }

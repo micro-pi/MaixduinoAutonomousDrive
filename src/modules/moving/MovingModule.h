@@ -34,6 +34,8 @@ private:
   void startCommand(const MovingModuleCommandAttribute commandAttribute);
   void moveCommand(const MovingModuleCommandAttribute commandAttribute, const MovingModuleDirection movingDirection, const uint16_t pwmValue);
   void pwmCommand(const MovingModuleCommandAttribute commandAttribute, const uint16_t pwmValue);
+
+  double getDutyCyclePercentage(const uint16_t pwmValue);
 };
 
 #endif
