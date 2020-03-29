@@ -17,15 +17,21 @@
 
 static const char *TAG = "MAD_K210";
 
+/* Objects */
+static xQueueHandle movingModuleCommandsQueue;
+
+/* Devices */
 Led powerLed("Power LED");
 ESP32 esp32("ESP32");
 ITG3200 gyro("ITG3205");
 MainMotor mainMotorLeft("Left Main Motor");
 MainMotor mainMotorRight("Right Main Motor");
 
+/* Modules */
 static CircularQueue<MovingModuleInterface> movingModuleCommands(10);
+
 static CommandModule commandModule("Command Module", movingModuleCommands);
-static MovingModule movingModule("Moving Module", movingModuleCommands, mainMotorLeft, mainMotorRight);
+static MovingModule movingModule("Moving Module");
 static CameraModule cameraModule("Camera Module");
 
 static Device *DEVICES[] = {
@@ -58,12 +64,15 @@ void init() {
   handle_t spi0;
   handle_t pwm0;
 
+  /* Initialize Objects */
+  movingModuleCommandsQueue = xQueueCreate(16, sizeof(MovingModuleInterface));
+
   gpio0 = io_open("/dev/gpio0");
   pwm0 = io_open("/dev/pwm0");
   i2c0 = io_open("/dev/i2c0");
   spi0 = io_open("/dev/spi0");
 
-  /* Before init devices configurations */
+  /* Initialize Devices */
   powerLed.setGpio(gpio0);
   powerLed.setPin(POWER_LED_PIN);
 
@@ -116,8 +125,12 @@ void init() {
   LOGI(TAG, "Z in standby mode    : 0x%02x", gyro.isStandbyModeZ());
   LOGI(TAG, "Clock source         : 0x%02x", gyro.getClockSource());
 
-  LOGI(TAG, "Modules: %d", numOfModules);
+  /* Initialize Modules */
+  movingModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
+  movingModule.setMainMotorLeft(mainMotorLeft);
+  movingModule.setMainMotorRight(mainMotorRight);
 
+  LOGI(TAG, "Modules: %d", numOfModules);
   for (i = 0; i < numOfModules; i++) {
     LOGI(TAG, "Init module '%s'", MODULES_100MS[i]->getName());
     MODULES_100MS[i]->init();
@@ -141,11 +154,13 @@ void task100ms(void *arg) {
     vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(xFrequency));
   }
 }
+
 void task1000ms(void *arg) {
   const TickType_t xFrequency = 1000;
-  uint16_t crc;
-  TickType_t xLastWakeTime;
   MovingModuleInterface movingModuleInterface;
+  portBASE_TYPE xStatus;
+  TickType_t xLastWakeTime;
+  uint16_t crc;
 
   /* Initialise the xLastWakeTime variable with the current time. */
   xLastWakeTime = xTaskGetTickCount();
@@ -172,13 +187,15 @@ void task1000ms(void *arg) {
           LOGI(TAG, "   crc : %04X ", crc);
           break;
 
-        case CMD:
+        case MOVING_CMD:
+          /* Get CMD from data array */
           memcpy(&movingModuleInterface, spi0Esp32RxBuffer.data, sizeof(MovingModuleInterface));
-
-          LOGI(TAG, "Rx.CMD : %d ", movingModuleInterface.command);
-          LOGI(TAG, "Rx.ATTR: %d ", movingModuleInterface.commandAttribute);
-          LOGI(TAG, "Rx.DIR : %d ", movingModuleInterface.movingDirection);
-          LOGI(TAG, "Rx.PWM : %d ", movingModuleInterface.pwmValue);
+          /* Add CMD to xQueue */
+          xStatus = xQueueSendToBack(movingModuleCommandsQueue, (void *)&movingModuleInterface, 0);
+          /* Print warning message in case if the xQueue is full */
+          if (xStatus == pdFAIL) {
+            LOGW(TAG, "Could not send to the CMD queue.");
+          }
           break;
 
         case BYTES:
@@ -231,61 +248,3 @@ int main() {
   for (;;) {
   }
 }
-
-/*
-#include <devices.h>
-#include <stdio.h>
-
-#include <pin_cfg.h>
-
-const fpioa_cfg_t g_fpioa_cfg =
-    {
-        .version = PIN_CFG_VERSION,
-        .functions_count = 2,
-        .functions =
-            {
-                {22, FUNC_TIMER0_TOGGLE1},
-                {23, FUNC_TIMER0_TOGGLE2}}};
-
-#define CHANNEL1 (0)
-#define CHANNEL2 (1)
-
-handle_t pwm0;
-// handle_t timer;
-
-// void irq_time(void *userdata) {
-//   static double cnt = 0.01;
-//   static int flag = 0;
-//   pwm_set_active_duty_cycle_percentage(pwm0, CHANNEL1, cnt);
-//   flag ? (cnt -= 0.01) : (cnt += 0.01);
-//   if (cnt > 1.0) {
-//     cnt = 1.0;
-//     flag = 1;
-//   } else if (cnt < 0.0) {
-//     cnt = 0.0;
-//     flag = 0;
-//   }
-// }
-
-int main() {
-  pwm0 = io_open("/dev/pwm0");
-  configASSERT(pwm0);
-  pwm_set_frequency(pwm0, 1000); //set 200KHZ
-  pwm_set_enable(pwm0, CHANNEL1, false);
-  pwm_set_enable(pwm0, CHANNEL2, false);
-  pwm_set_active_duty_cycle_percentage(pwm0, CHANNEL1, 0.5); //duty 50%
-  pwm_set_active_duty_cycle_percentage(pwm0, CHANNEL2, 0.1); //duty 50%
-  pwm_set_enable(pwm0, CHANNEL1, true);
-  pwm_set_enable(pwm0, CHANNEL2, true);
-
-  // timer = io_open("/dev/timer10");
-  // configASSERT(timer);
-
-  // timer_set_interval(timer, 1e7);
-  // timer_set_on_tick(timer, irq_time, NULL);
-  // timer_set_enable(timer, 1);
-
-  while (1)
-    ;
-}
-*/

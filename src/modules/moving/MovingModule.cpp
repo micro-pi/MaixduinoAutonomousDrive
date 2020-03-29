@@ -1,7 +1,10 @@
 #include "MovingModule.h"
+#include <syslog.h>
 
-MovingModule::MovingModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds, MainMotor &mainMotorLeft, MainMotor &mainMotorRight)
-    : Module(moduleName), movingModuleCommands(movingModuleCmds), mainMotorLeft(mainMotorLeft), mainMotorRight(mainMotorRight) {
+MovingModule::MovingModule(const char *moduleName) : Module(moduleName) {
+  this->movingModuleCommandsQueue = nullptr;
+  this->mainMotorLeft = nullptr;
+  this->mainMotorRight = nullptr;
 }
 
 ErrorCode MovingModule::init(void) {
@@ -10,35 +13,48 @@ ErrorCode MovingModule::init(void) {
   return errorCode;
 }
 
+void MovingModule::setMovingModuleCommandsQueue(xQueueHandle movingModuleCommandsQueue) {
+  this->movingModuleCommandsQueue = movingModuleCommandsQueue;
+}
+
+void MovingModule::setMainMotorLeft(MainMotor &mainMotorLeft) {
+  this->mainMotorLeft = &mainMotorLeft;
+}
+
+void MovingModule::setMainMotorRight(MainMotor &mainMotorRight) {
+  this->mainMotorRight = &mainMotorRight;
+}
+
 void MovingModule::mainFunction(void) {
-  MovingModuleInterface movingModuleInterface;
-  bool isNotEmpty;
+  portBASE_TYPE xStatus;
 
-  isNotEmpty = movingModuleCommands.deQueue(movingModuleInterface);
-  if (true == isNotEmpty) {
-    switch (movingModuleInterface.command) {
-      case MOVING_MODULE_COMMAND_STOP:
-        stopCommand(movingModuleInterface.commandAttribute);
-        break;
+  if (this->movingModuleCommandsQueue != nullptr) {
+    xStatus = xQueueReceive(this->movingModuleCommandsQueue, &lastCmd, portMAX_DELAY);
+    if (xStatus == pdPASS) {
+      switch (lastCmd.command) {
+        case MOVING_MODULE_COMMAND_STOP:
+          stopCommand(lastCmd.commandAttribute);
+          break;
 
-      case MOVING_MODULE_COMMAND_START:
-        startCommand(movingModuleInterface.commandAttribute);
-        break;
+        case MOVING_MODULE_COMMAND_START:
+          startCommand(lastCmd.commandAttribute);
+          break;
 
-      case MOVING_MODULE_COMMAND_MOVE:
-        moveCommand(movingModuleInterface.commandAttribute, movingModuleInterface.movingDirection, movingModuleInterface.pwmValue);
-        break;
+        case MOVING_MODULE_COMMAND_MOVE:
+          moveCommand(lastCmd.commandAttribute, lastCmd.movingDirection, lastCmd.pwmValue);
+          break;
 
-      case MOVING_MODULE_COMMAND_PWM:
-        pwmCommand(movingModuleInterface.commandAttribute, movingModuleInterface.pwmValue);
-        break;
+        case MOVING_MODULE_COMMAND_PWM:
+          pwmCommand(lastCmd.commandAttribute, lastCmd.pwmValue);
+          break;
 
-      default:
-        /* Unsupported command */
-        break;
+        default:
+          /* Unsupported command */
+          break;
+      }
+    } else {
+      /* MISRA : the queue is empty */
     }
-  } else {
-    /* MISRA : the queue is empty */
   }
 }
 

@@ -9,16 +9,20 @@
 
 class MovingModule : public Module {
 private:
-  CircularQueue<MovingModuleInterface> &movingModuleCommands;
-  MainMotor &mainMotorLeft;
-  MainMotor &mainMotorRight;
+  MovingModuleInterface lastCmd;
+  xQueueHandle movingModuleCommandsQueue;
+  MainMotor *mainMotorLeft;
+  MainMotor *mainMotorRight;
 
 public:
   /**
    * @brief Default constructor
    */
-  MovingModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds, MainMotor &mainMotorLeft, MainMotor &mainMotorRight);
+  MovingModule(const char *moduleName);
   ErrorCode init(void);
+  void setMovingModuleCommandsQueue(xQueueHandle movingModuleCommandsQueue);
+  void setMainMotorLeft(MainMotor &mainMotorLeft);
+  void setMainMotorRight(MainMotor &mainMotorRight);
   void mainFunction(void);
   /**
    * @brief Destructor
