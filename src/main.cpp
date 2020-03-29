@@ -8,55 +8,18 @@
 
 #include "tasks/tasks.h"
 
-#include "modules/camera/CameraModule.h"
-#include "modules/circular_queue/CircularQueue.h"
-#include "modules/cmd/CommandModule.h"
-#include "modules/moving/MovingModule.h"
-
-#include "AllDevices.h"
+#include "devices/AllDevices.h"
+#include "modules/AllModules.h"
 
 static const char *TAG = "MAD_K210";
 
 /* Objects */
 static xQueueHandle movingModuleCommandsQueue;
 
-/* Devices */
-Led powerLed("Power LED");
-ESP32 esp32("ESP32");
-ITG3200 gyro("ITG3205");
-MainMotor mainMotorLeft("Left Main Motor");
-MainMotor mainMotorRight("Right Main Motor");
-
-/* Modules */
-static CircularQueue<MovingModuleInterface> movingModuleCommands(10);
-
-static CommandModule commandModule("Command Module", movingModuleCommands);
-static MovingModule movingModule("Moving Module");
-static CameraModule cameraModule("Camera Module");
-
-static Device *DEVICES[] = {
-    &powerLed,
-    &esp32,
-    &gyro,
-    &mainMotorLeft,
-    &mainMotorRight,
-};
-
-static Module *MODULES_100MS[] = {
-    &commandModule,
-    &movingModule,
-    &cameraModule,
-};
-
-#define NUM_OF_MODULES_100MS (sizeof(MODULES_100MS) / sizeof(Module *))
-#define NUM_OF_DEVICES (sizeof(DEVICES) / sizeof(Device *))
-
 static K210ESP32Data spi0Esp32TxBuffer;
 static K210ESP32Data spi0Esp32RxBuffer;
 
 void init() {
-  uint32_t numOfModules = NUM_OF_MODULES_100MS;
-  uint32_t numOfDevices = NUM_OF_DEVICES;
   uint32_t i;
 
   handle_t gpio0;
@@ -92,8 +55,8 @@ void init() {
 
   gyro.setI2c(i2c0);
 
-  LOGI(TAG, "Devices: %d", numOfDevices);
-  for (i = 0; i < numOfDevices; i++) {
+  LOGI(TAG, "Devices: %d", NUM_OF_DEVICES);
+  for (i = 0; i < NUM_OF_DEVICES; i++) {
     DEVICES[i]->begin();
   }
   /* TODO: Add methods to check if devices are present and initialized */
@@ -130,28 +93,10 @@ void init() {
   movingModule.setMainMotorLeft(mainMotorLeft);
   movingModule.setMainMotorRight(mainMotorRight);
 
-  LOGI(TAG, "Modules: %d", numOfModules);
-  for (i = 0; i < numOfModules; i++) {
+  LOGI(TAG, "Modules: %d", NUM_OF_MODULES_100MS);
+  for (i = 0; i < NUM_OF_MODULES_100MS; i++) {
     LOGI(TAG, "Init module '%s'", MODULES_100MS[i]->getName());
     MODULES_100MS[i]->init();
-  }
-}
-
-void task100ms(void *arg) {
-  const TickType_t xFrequency = 100;
-  TickType_t xLastWakeTime;
-  uint32_t n = NUM_OF_MODULES_100MS;
-  uint32_t i;
-  /* Initialise the xLastWakeTime variable with the current time. */
-  xLastWakeTime = xTaskGetTickCount();
-
-  while (1) {
-    for (i = 0; i < n; i++) {
-      MODULES_100MS[i]->mainFunction();
-    }
-
-    /* Wait for the next cycle. */
-    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(xFrequency));
   }
 }
 
