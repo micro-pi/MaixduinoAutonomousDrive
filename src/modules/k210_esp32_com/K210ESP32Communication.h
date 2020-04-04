@@ -3,7 +3,6 @@
 
 #include "../../devices/esp32/ESP32.h"
 #include "../Module.h"
-#include "../circular_queue/CircularQueue.h"
 
 #include <devices.h>
 
