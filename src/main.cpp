@@ -96,14 +96,14 @@ void init() {
     MODULES_100MS[i]->init();
   }
 
-  /* Initialize Modules 1000ms */
+  /* Initialize Modules 10ms */
   k210Esp32Communication.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
   k210Esp32Communication.setEsp32Device(esp32);
 
-  LOGI(TAG, "Modules 1000ms: %d", NUM_OF_MODULES_1000MS);
-  for (i = 0; i < NUM_OF_MODULES_1000MS; i++) {
-    LOGI(TAG, "Init module '%s'", MODULES_1000MS[i]->getName());
-    MODULES_1000MS[i]->init();
+  LOGI(TAG, "Modules 10ms: %d", NUM_OF_MODULES_10MS);
+  for (i = 0; i < NUM_OF_MODULES_10MS; i++) {
+    LOGI(TAG, "Init module '%s'", MODULES_10MS[i]->getName());
+    MODULES_10MS[i]->init();
   }
 }
 
@@ -121,12 +121,12 @@ int main() {
     LOGI(TAG, "Rask %s is running", "vPowerBlinkTaskCore0");
   }
 
-  LOGI(TAG, "Run task %s", "task1000ms");
-  xReturn = xTaskCreateAtProcessor(CORE_0, &task1000ms, "task1000ms", 4096, NULL, 2, NULL);
+  LOGI(TAG, "Run task %s", "task10ms");
+  xReturn = xTaskCreateAtProcessor(CORE_0, &task10ms, "task10ms", 4096, NULL, 2, NULL);
   if (xReturn != pdPASS) {
-    LOGI(TAG, "Task %s run problem", "task1000ms");
+    LOGI(TAG, "Task %s run problem", "task10ms");
   } else {
-    LOGI(TAG, "Rask %s is running", "task1000ms");
+    LOGI(TAG, "Rask %s is running", "task10ms");
   }
 
   LOGI(TAG, "Run task %s", "task100ms");

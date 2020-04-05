@@ -29,7 +29,7 @@ void MovingModule::mainFunction(void) {
   portBASE_TYPE xStatus;
 
   if (this->movingModuleCommandsQueue != nullptr) {
-    xStatus = xQueueReceive(this->movingModuleCommandsQueue, &lastCmd, portMAX_DELAY);
+    xStatus = xQueueReceive(this->movingModuleCommandsQueue, &lastCmd, 0);
     if (xStatus == pdPASS) {
       switch (lastCmd.command) {
         case MOVING_MODULE_COMMAND_STOP:

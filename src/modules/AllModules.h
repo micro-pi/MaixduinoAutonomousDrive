@@ -14,9 +14,11 @@ extern MovingModule movingModule;
 extern CameraModule cameraModule;
 extern K210ESP32Communication k210Esp32Communication;
 
+extern Module *MODULES_10MS[];
 extern Module *MODULES_100MS[];
 extern Module *MODULES_1000MS[];
 
+extern const uint8_t NUM_OF_MODULES_10MS;
 extern const uint8_t NUM_OF_MODULES_100MS;
 extern const uint8_t NUM_OF_MODULES_1000MS;
 

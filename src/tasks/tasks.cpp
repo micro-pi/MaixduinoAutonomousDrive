@@ -21,6 +21,23 @@ void vPowerBlinkTaskCore0(void *arg) {
   }
 }
 
+void task10ms(void *arg) {
+  const TickType_t xFrequency = 10;
+  TickType_t xLastWakeTime;
+  uint32_t i;
+  /* Initialise the xLastWakeTime variable with the current time. */
+  xLastWakeTime = xTaskGetTickCount();
+
+  while (1) {
+    for (i = 0; i < NUM_OF_MODULES_10MS; i++) {
+      MODULES_10MS[i]->mainFunction();
+    }
+
+    /* Wait for the next cycle. */
+    vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(xFrequency));
+  }
+}
+
 void task100ms(void *arg) {
   const TickType_t xFrequency = 100;
   TickType_t xLastWakeTime;
