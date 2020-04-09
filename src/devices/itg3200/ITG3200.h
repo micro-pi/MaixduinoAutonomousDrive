@@ -118,7 +118,7 @@ private:
 public:
   ITG3200(const char *deviceName);
   void setI2c(const handle_t i2c);
-  void begin(void);
+  ErrorCode initDevice(void);
   double getTemperature(void);
   void getXYZ(int16_t *x, int16_t *y, int16_t *z);
   void getAngularVelocity(float *ax, float *ay, float *az);
@@ -162,7 +162,7 @@ public:
   bool isPllReady(void);
   bool isRawDataReady(void);
 
-  void resetDevice(void);
+  int resetDevice(void);
 
   bool isSleepMode(void);
   void setSleepMode(bool enable);
@@ -183,11 +183,11 @@ private:
   int8_t read(uint8_t reg);
   int16_t read16(uint8_t reg);
   void readData(void);
-  void write(uint8_t reg, uint8_t data);
+  int write(uint8_t reg, uint8_t data);
   uint8_t getRegisterValue(uint8_t reg, uint8_t mask, uint8_t bit);
-  void setRegisterBitsValue(uint8_t reg, uint8_t mask, uint8_t bit, uint8_t value);
-  void setRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit);
-  void clearRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit);
+  int setRegisterBitsValue(uint8_t reg, uint8_t mask, uint8_t bit, uint8_t value);
+  int setRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit);
+  int clearRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit);
 };
 
 #endif

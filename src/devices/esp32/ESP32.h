@@ -18,7 +18,7 @@ public:
   void setSpi(const handle_t spi);
   void setMode(const spi_mode_t mode);
   void setClockRate(const double clockRate);
-  void begin(void);
+  ErrorCode initDevice(void);
   int transferFullDuplex(K210ESP32Data &spi0Esp32TxBuffer, K210ESP32Data &spi0Esp32RxBuffer);
   virtual ~ESP32(void);
 };

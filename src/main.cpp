@@ -17,6 +17,7 @@ static const char *TAG = "MAD_K210";
 static xQueueHandle movingModuleCommandsQueue;
 
 void init() {
+  ErrorCode errorCode;
   uint32_t i;
 
   handle_t gpio0;
@@ -54,36 +55,43 @@ void init() {
 
   LOGI(TAG, "Devices: %d", NUM_OF_DEVICES);
   for (i = 0; i < NUM_OF_DEVICES; i++) {
-    DEVICES[i]->begin();
+    errorCode = DEVICES[i]->begin();
+    if (errorCode == E_OK) {
+      LOGI(TAG, "Device \"%s\" initialized successfully!", DEVICES[i]->getName());
+    } else {
+      LOGW(TAG, "Device \"%s\" not initialized!", DEVICES[i]->getName());
+    }
   }
-  /* TODO: Add methods to check if devices are present and initialized */
-  /* After init devices configurations */
-  gyro.setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
-  gyro.setDigitalLowPassFilter(BANDWIDTH_5HZ_RATE_1KHZ);
-  gyro.setRawDataReadyEnabled(true);
 
-  LOGI(TAG, "Who Am I             : 0x%02x", gyro.whoAmI());
-  LOGI(TAG, "----Sample Rate Divider----");
-  LOGI(TAG, "Sample Rate Divider  : 0x%02x", gyro.getSampleRateDivider());
-  LOGI(TAG, "------DLPF, Full Scale-----");
-  LOGI(TAG, "Full scale selection : 0x%02x", gyro.getFullScaleSelection());
-  LOGI(TAG, "Digital low pass     : 0x%02x", gyro.getDigitalLowPassFilter());
-  LOGI(TAG, "--Interrupt Configuration--");
-  LOGI(TAG, "Logic level          : 0x%02x", gyro.getLogicLevelIntOutputPin());
-  LOGI(TAG, "Drive type           : 0x%02x", gyro.getDriveTypeIntOutputPin());
-  LOGI(TAG, "Latch mode           : 0x%02x", gyro.getLatchMode());
-  LOGI(TAG, "Latch clear method   : 0x%02x", gyro.getLatchClearMethod());
-  LOGI(TAG, "Interrupt Enabled    : 0x%02x", gyro.isInterruptEnabled());
-  LOGI(TAG, "Raw data ready       : 0x%02x", gyro.isRawDataReadyEnabled());
-  LOGI(TAG, "------Interrupt Status-----");
-  LOGI(TAG, "PLL ready            : 0x%02x", gyro.isPllReady());
-  LOGI(TAG, "Raw data is ready    : 0x%02x", gyro.isRawDataReady());
-  LOGI(TAG, "------Power Management-----");
-  LOGI(TAG, "Low power sleep mode : 0x%02x", gyro.isSleepMode());
-  LOGI(TAG, "X in standby mode    : 0x%02x", gyro.isStandbyModeX());
-  LOGI(TAG, "Y in standby mode    : 0x%02x", gyro.isStandbyModeY());
-  LOGI(TAG, "Z in standby mode    : 0x%02x", gyro.isStandbyModeZ());
-  LOGI(TAG, "Clock source         : 0x%02x", gyro.getClockSource());
+  /* After init devices configurations */
+  if (gyro.getErrorCode() == E_OK) {
+    gyro.setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
+    gyro.setDigitalLowPassFilter(BANDWIDTH_5HZ_RATE_1KHZ);
+    gyro.setRawDataReadyEnabled(true);
+
+    LOGI(TAG, "Who Am I             : 0x%02x", gyro.whoAmI());
+    LOGI(TAG, "----Sample Rate Divider----");
+    LOGI(TAG, "Sample Rate Divider  : 0x%02x", gyro.getSampleRateDivider());
+    LOGI(TAG, "------DLPF, Full Scale-----");
+    LOGI(TAG, "Full scale selection : 0x%02x", gyro.getFullScaleSelection());
+    LOGI(TAG, "Digital low pass     : 0x%02x", gyro.getDigitalLowPassFilter());
+    LOGI(TAG, "--Interrupt Configuration--");
+    LOGI(TAG, "Logic level          : 0x%02x", gyro.getLogicLevelIntOutputPin());
+    LOGI(TAG, "Drive type           : 0x%02x", gyro.getDriveTypeIntOutputPin());
+    LOGI(TAG, "Latch mode           : 0x%02x", gyro.getLatchMode());
+    LOGI(TAG, "Latch clear method   : 0x%02x", gyro.getLatchClearMethod());
+    LOGI(TAG, "Interrupt Enabled    : 0x%02x", gyro.isInterruptEnabled());
+    LOGI(TAG, "Raw data ready       : 0x%02x", gyro.isRawDataReadyEnabled());
+    LOGI(TAG, "------Interrupt Status-----");
+    LOGI(TAG, "PLL ready            : 0x%02x", gyro.isPllReady());
+    LOGI(TAG, "Raw data is ready    : 0x%02x", gyro.isRawDataReady());
+    LOGI(TAG, "------Power Management-----");
+    LOGI(TAG, "Low power sleep mode : 0x%02x", gyro.isSleepMode());
+    LOGI(TAG, "X in standby mode    : 0x%02x", gyro.isStandbyModeX());
+    LOGI(TAG, "Y in standby mode    : 0x%02x", gyro.isStandbyModeY());
+    LOGI(TAG, "Z in standby mode    : 0x%02x", gyro.isStandbyModeZ());
+    LOGI(TAG, "Clock source         : 0x%02x", gyro.getClockSource());
+  }
 
   /* Initialize Modules 100ms */
   movingModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);

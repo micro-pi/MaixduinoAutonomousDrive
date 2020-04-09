@@ -17,9 +17,10 @@ void Led::setPin(const int pin) {
 Led::~Led() {
 }
 
-void Led::begin(void) {
+ErrorCode Led::initDevice(void) {
   gpio_set_drive_mode(this->gpio, this->pin, GPIO_DM_OUTPUT);
   on();
+  return E_OK;
 }
 
 void Led::on(void) {

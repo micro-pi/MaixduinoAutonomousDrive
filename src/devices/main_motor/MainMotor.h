@@ -24,7 +24,7 @@ public:
   void setDutyCycleForward(const double dutyCyclePercentage);
   void setDutyCycleBackward(const double dutyCyclePercentage);
   void stop(void);
-  void begin(void);
+  ErrorCode initDevice(void);
   virtual ~MainMotor(void);
 
 private:

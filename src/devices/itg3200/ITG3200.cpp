@@ -2,6 +2,7 @@
 #include <cmath>
 #include <devices.h>
 #include <fpioa.h>
+#include <syslog.h>
 
 ITG3200::ITG3200(const char *deviceName) : Device(deviceName) {
   this->i2c = 0;
@@ -14,20 +15,34 @@ void ITG3200::setI2c(const handle_t i2c) {
 /**
  * @brief Initialization for ITG3200.
  */
-void ITG3200::begin() {
+ErrorCode ITG3200::initDevice() {
+  ErrorCode errorCode;
+  int bytes;
+  uint8_t data;
+
   if (this->i2c > 0) {
     this->device = i2c_get_device(this->i2c, GYRO_ADDRESS, 7);
     i2c_dev_set_clock_rate(this->device, 400000);
 
-    /* send a reset to the device */
-    this->resetDevice();
+    /* read first byte */
+    bytes = io_read(this->device, &data, 1);
+    if ((bytes <= 0) || (data != GYRO_ADDRESS)) {
+      errorCode = E_NOK;
+    } else {
+      /* send a reset to the device */
+      (void)this->resetDevice();
 
-    /* sample rate divider */
-    this->setSampleRateDivider(0U);
+      /* sample rate divider */
+      (void)this->setSampleRateDivider(0U);
 
-    /* +/-2000 degrees/s (default value) */
-    this->setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
+      /* +/-2000 degrees/s (default value) */
+      (void)this->setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
+      errorCode = E_OK;
+    }
+  } else {
+    errorCode = E_NOK;
   }
+  return errorCode;
 }
 
 /**
@@ -46,11 +61,12 @@ int8_t ITG3200::read(uint8_t reg) {
  * @brief Write a byte to the register of the MMA7660
  * @param[in] reg The register address of ITG3200 to write
  * @param[in] data The data to write
+ * @return len Success, other Fail
  */
-void ITG3200::write(uint8_t reg, uint8_t data) {
+int ITG3200::write(uint8_t reg, uint8_t data) {
   this->writeBuffer[0] = reg;
   this->writeBuffer[1] = data;
-  io_write(this->device, this->writeBuffer, 2);
+  return io_write(this->device, this->writeBuffer, 2);
 }
 
 /**
@@ -305,8 +321,8 @@ bool ITG3200::isRawDataReady(void) {
   return this->getRegisterValue(ITG3200_INT_S, RAW_DATA_RDY_MASK, RAW_DATA_RDY_BIT) == 0b1U;
 }
 
-void ITG3200::resetDevice(void) {
-  this->setRegisterBits(ITG3200_PWR_M, H_RESET_MASK, H_RESET_BIT);
+int ITG3200::resetDevice(void) {
+  return this->setRegisterBits(ITG3200_PWR_M, H_RESET_MASK, H_RESET_BIT);
 }
 
 bool ITG3200::isSleepMode(void) {
@@ -372,24 +388,24 @@ uint8_t ITG3200::getRegisterValue(uint8_t reg, uint8_t mask, uint8_t bit) {
   return (this->read(reg) & mask) >> bit;
 }
 
-void ITG3200::setRegisterBitsValue(uint8_t reg, uint8_t mask, uint8_t bit, uint8_t value) {
+int ITG3200::setRegisterBitsValue(uint8_t reg, uint8_t mask, uint8_t bit, uint8_t value) {
   uint8_t currentValue;
   currentValue = this->read(reg);
   currentValue &= ~(mask << bit);
   currentValue |= ((mask & value) << bit);
-  this->write(reg, currentValue);
+  return this->write(reg, currentValue);
 }
 
-void ITG3200::setRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit) {
+int ITG3200::setRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit) {
   uint8_t currentValue;
   currentValue = this->read(reg);
   currentValue |= (mask << bit);
-  this->write(reg, currentValue);
+  return this->write(reg, currentValue);
 }
 
-void ITG3200::clearRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit) {
+int ITG3200::clearRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit) {
   uint8_t currentValue;
   currentValue = this->read(reg);
   currentValue &= ~(mask << bit);
-  this->write(reg, currentValue);
+  return this->write(reg, currentValue);
 }

@@ -22,18 +22,18 @@ void MainMotor::setBackwardChannel(const uint32_t backwardChannel) {
   this->backwardChannel = backwardChannel;
 }
 
-void MainMotor::begin() {
-  // ErrorCode errorCode;
+ErrorCode MainMotor::initDevice() {
+  ErrorCode errorCode;
   if (this->pwm == 0) {
-    // errorCode = E_NOK;
+    errorCode = E_NOK;
   } else {
     pwm_set_frequency(this->pwm, this->frequency);
     pwm_set_enable(this->pwm, this->forwardChannel, false);
     pwm_set_enable(this->pwm, this->backwardChannel, false);
-    // errorCode = E_OK;
+    errorCode = E_OK;
   }
 
-  // return errorCode;
+  return errorCode;
 }
 
 void MainMotor::goForward(const double dutyCyclePercentage) {

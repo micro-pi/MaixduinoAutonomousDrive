@@ -20,7 +20,7 @@ public:
   void setPin(const int pin);
   virtual ~Led();
 
-  virtual void begin(void) override;
+  virtual ErrorCode initDevice(void) override;
 
   /**
    * @brief Turn on LED
