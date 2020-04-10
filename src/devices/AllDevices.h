@@ -8,7 +8,7 @@
 
 extern Led powerLed;
 extern ESP32 esp32;
-extern ITG3200 gyro;
+extern ITG3200 itg3200;
 extern MainMotor mainMotorLeft;
 extern MainMotor mainMotorRight;
 

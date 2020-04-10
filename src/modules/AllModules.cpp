@@ -7,9 +7,11 @@ CommandModule commandModule("Command Module", movingModuleCommands);
 MovingModule movingModule("Moving Module");
 CameraModule cameraModule("Camera Module");
 K210ESP32Communication k210Esp32Communication("K210/ESP32 Communication");
+GyroModule gyroModule("Gyroscope Module");
 
 Module *MODULES_10MS[] = {
     &k210Esp32Communication,
+    &gyroModule,
 };
 
 Module *MODULES_100MS[] = {

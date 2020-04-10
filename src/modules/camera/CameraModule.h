@@ -12,7 +12,7 @@ public:
    * @brief Default constructor
    */
   CameraModule(const char *moduleName);
-  ErrorCode init(void);
+  ErrorCode initModule(void);
   void mainFunction(void);
   /**
    * @brief Destructor

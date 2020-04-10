@@ -7,7 +7,7 @@ MovingModule::MovingModule(const char *moduleName) : Module(moduleName) {
   this->mainMotorRight = nullptr;
 }
 
-ErrorCode MovingModule::init(void) {
+ErrorCode MovingModule::initModule(void) {
   ErrorCode errorCode;
   errorCode = E_OK;
   return errorCode;

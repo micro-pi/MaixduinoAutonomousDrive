@@ -9,7 +9,7 @@ K210ESP32Communication::K210ESP32Communication(const char *moduleName) : Module(
   this->esp32 = nullptr;
 }
 
-ErrorCode K210ESP32Communication::init(void) {
+ErrorCode K210ESP32Communication::initModule(void) {
   ErrorCode errorCode;
   errorCode = E_OK;
 

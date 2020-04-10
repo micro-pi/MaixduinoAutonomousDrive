@@ -3,7 +3,7 @@
 CameraModule::CameraModule(const char *moduleName) : Module(moduleName) {
 }
 
-ErrorCode CameraModule::init(void) {
+ErrorCode CameraModule::initModule(void) {
 
   return E_OK;
 }

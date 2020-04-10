@@ -3,14 +3,14 @@
 /* Devices */
 Led powerLed("Power LED");
 ESP32 esp32("ESP32");
-ITG3200 gyro("ITG3205");
+ITG3200 itg3200("ITG3205");
 MainMotor mainMotorLeft("Left Main Motor");
 MainMotor mainMotorRight("Right Main Motor");
 
 Device *DEVICES[] = {
     &powerLed,
     &esp32,
-    &gyro,
+    &itg3200,
     &mainMotorLeft,
     &mainMotorRight,
 };

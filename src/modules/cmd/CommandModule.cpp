@@ -3,7 +3,7 @@
 CommandModule::CommandModule(const char *moduleName, CircularQueue<MovingModuleInterface> &movingModuleCmds) : Module(moduleName), movingModuleCommands(movingModuleCmds) {
 }
 
-ErrorCode CommandModule::init(void) {
+ErrorCode CommandModule::initModule(void) {
   ErrorCode errorCode;
   errorCode = E_OK;
 

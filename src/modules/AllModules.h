@@ -4,6 +4,7 @@
 #include "camera/CameraModule.h"
 #include "circular_queue/CircularQueue.h"
 #include "cmd/CommandModule.h"
+#include "gyro_module/GyroModule.h"
 #include "k210_esp32_com/K210ESP32Communication.h"
 #include "moving/MovingModule.h"
 
@@ -13,6 +14,7 @@ extern CommandModule commandModule;
 extern MovingModule movingModule;
 extern CameraModule cameraModule;
 extern K210ESP32Communication k210Esp32Communication;
+extern GyroModule gyroModule;
 
 extern Module *MODULES_10MS[];
 extern Module *MODULES_100MS[];

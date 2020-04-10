@@ -19,7 +19,7 @@ public:
    * @brief Default constructor
    */
   MovingModule(const char *moduleName);
-  ErrorCode init(void);
+  ErrorCode initModule(void);
   void setMovingModuleCommandsQueue(xQueueHandle movingModuleCommandsQueue);
   void setMainMotorLeft(MainMotor &mainMotorLeft);
   void setMainMotorRight(MainMotor &mainMotorRight);

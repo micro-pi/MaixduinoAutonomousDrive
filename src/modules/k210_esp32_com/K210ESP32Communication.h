@@ -19,7 +19,7 @@ public:
    * @brief Default constructor
    */
   K210ESP32Communication(const char *moduleName);
-  ErrorCode init(void);
+  ErrorCode initModule(void);
   void setMovingModuleCommandsQueue(xQueueHandle movingModuleCommandsQueue);
   void setEsp32Device(ESP32 &esp32);
   void mainFunction(void);
