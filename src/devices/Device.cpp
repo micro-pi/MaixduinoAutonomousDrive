@@ -16,5 +16,5 @@ ErrorCode Device::getErrorCode(void) {
   return this->errorCode;
 }
 
-Device::~Device(void) {
+Device::~Device() {
 }

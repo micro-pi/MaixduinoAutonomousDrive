@@ -14,7 +14,7 @@ public:
   virtual ErrorCode initDevice(void) = 0;
   virtual const char *getName(void);
   virtual ErrorCode getErrorCode(void);
-  virtual ~Device(void);
+  virtual ~Device();
 };
 
 #endif
