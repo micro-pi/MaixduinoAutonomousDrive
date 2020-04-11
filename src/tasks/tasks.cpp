@@ -56,7 +56,7 @@ void task100ms(void *arg) {
 }
 
 void task1000ms(void *arg) {
-  const TickType_t xFrequency = 1000;
+  const TickType_t xFrequency = 10;
   TickType_t xLastWakeTime;
   uint32_t i;
   /* Initialise the xLastWakeTime variable with the current time. */

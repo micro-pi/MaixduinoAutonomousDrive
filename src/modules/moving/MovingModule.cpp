@@ -58,6 +58,22 @@ void MovingModule::mainFunction(void) {
   }
 }
 
+MovingModuleCommands MovingModule::getLastMovingModuleCommands(void) {
+  return lastCmd.command;
+}
+
+MovingModuleCommandAttribute MovingModule::getLastMovingModuleCommandAttribute(void) {
+  return lastCmd.commandAttribute;
+}
+
+MovingModuleDirection MovingModule::getLastMovingModuleDirection(void) {
+  return lastCmd.movingDirection;
+}
+
+uint16_t MovingModule::getLastPwmValue(void) {
+  return lastCmd.pwmValue;
+}
+
 MovingModule::~MovingModule(void) {
 }
 

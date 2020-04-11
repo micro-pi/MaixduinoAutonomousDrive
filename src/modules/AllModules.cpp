@@ -11,7 +11,6 @@ GyroModule gyroModule("Gyroscope Module");
 
 Module *MODULES_10MS[] = {
     &k210Esp32Communication,
-    &gyroModule,
 };
 
 Module *MODULES_100MS[] = {
@@ -20,7 +19,9 @@ Module *MODULES_100MS[] = {
     &cameraModule,
 };
 
-Module *MODULES_1000MS[] = {};
+Module *MODULES_1000MS[] = {
+    &gyroModule,
+};
 
 const uint8_t NUM_OF_MODULES_10MS = ((uint8_t)(sizeof(MODULES_10MS) / sizeof(Module *)));
 const uint8_t NUM_OF_MODULES_100MS = ((uint8_t)(sizeof(MODULES_100MS) / sizeof(Module *)));

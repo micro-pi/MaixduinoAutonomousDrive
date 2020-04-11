@@ -120,8 +120,8 @@ public:
   void setI2c(const handle_t i2c);
   ErrorCode initDevice(void);
   double getTemperature(void);
-  void getXYZ(int16_t *x, int16_t *y, int16_t *z);
-  void getAngularVelocity(float *ax, float *ay, float *az);
+  void getXYZ(int16_t &x, int16_t &y, int16_t &z);
+  void getAngularVelocity(float &ax, float &ay, float &az);
   void zeroCalibrate(unsigned int samples, unsigned int sampleDelayMS);
   void setXoffset(const int16_t xOffset);
   void setYoffset(const int16_t yOffset);
@@ -179,11 +179,12 @@ public:
   ClockSource getClockSource(void);
   void setClockSource(ClockSource clockSource);
 
-private:
   int8_t read(uint8_t reg);
+  int write(uint8_t reg, uint8_t data);
+
+private:
   int16_t read16(uint8_t reg);
   void readData(void);
-  int write(uint8_t reg, uint8_t data);
   uint8_t getRegisterValue(uint8_t reg, uint8_t mask, uint8_t bit);
   int setRegisterBitsValue(uint8_t reg, uint8_t mask, uint8_t bit, uint8_t value);
   int setRegisterBits(uint8_t reg, uint8_t mask, uint8_t bit);

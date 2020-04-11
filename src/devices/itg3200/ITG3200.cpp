@@ -3,6 +3,7 @@
 #include <devices.h>
 #include <fpioa.h>
 #include <syslog.h>
+#include <task.h>
 
 ITG3200::ITG3200(const char *deviceName) : Device(deviceName) {
   this->i2c = 0;
@@ -16,6 +17,7 @@ void ITG3200::setI2c(const handle_t i2c) {
  * @brief Initialization for ITG3200.
  */
 ErrorCode ITG3200::initDevice() {
+  uint32_t ctx;
   ErrorCode errorCode;
   int bytes;
   uint8_t data;
@@ -24,21 +26,19 @@ ErrorCode ITG3200::initDevice() {
     this->device = i2c_get_device(this->i2c, GYRO_ADDRESS, 7);
     i2c_dev_set_clock_rate(this->device, 400000);
 
-    /* read first byte */
-    bytes = io_read(this->device, &data, 1);
-    if ((bytes <= 0) || (data != GYRO_ADDRESS)) {
-      errorCode = E_NOK;
-    } else {
-      /* send a reset to the device */
-      (void)this->resetDevice();
-
-      /* sample rate divider */
-      (void)this->setSampleRateDivider(0U);
-
-      /* +/-2000 degrees/s (default value) */
-      (void)this->setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
-      errorCode = E_OK;
-    }
+    //   ctx = 0;
+    //   do {
+    //     /* read first byte */
+    //     bytes = io_read(this->device, &data, 1);
+    //     if ((bytes <= 0) || (data != GYRO_ADDRESS)) {
+    //       errorCode = E_NOK;
+    //       vTaskDelay(1);
+    //     } else {
+    errorCode = E_OK;
+    //       break;
+    //     }
+    //     ctx++;
+    //   } while ((ctx <= 20) && (errorCode == E_NOK));
   } else {
     errorCode = E_NOK;
   }
@@ -106,12 +106,12 @@ double ITG3200::getTemperature() {
  * @param[out] y
  * @param[out] z
  */
-void ITG3200::getXYZ(int16_t *x, int16_t *y, int16_t *z) {
+void ITG3200::getXYZ(int16_t &x, int16_t &y, int16_t &z) {
   /* Read 6 bytes in readBuffer */
   readData();
-  *x = ((int16_t)((readBuffer[0] << 8) | (readBuffer[1]))) + xOffset;
-  *y = ((int16_t)((readBuffer[2] << 8) | (readBuffer[3]))) + yOffset;
-  *z = ((int16_t)((readBuffer[4] << 8) | (readBuffer[5]))) + zOffset;
+  x = ((int16_t)((readBuffer[0] << 8) | (readBuffer[1]))) + xOffset;
+  y = ((int16_t)((readBuffer[2] << 8) | (readBuffer[3]))) + yOffset;
+  z = ((int16_t)((readBuffer[4] << 8) | (readBuffer[5]))) + zOffset;
 }
 
 /**
@@ -120,26 +120,28 @@ void ITG3200::getXYZ(int16_t *x, int16_t *y, int16_t *z) {
  * @param[out] ay
  * @param[out] az
  */
-void ITG3200::getAngularVelocity(float *ax, float *ay, float *az) {
+void ITG3200::getAngularVelocity(float &ax, float &ay, float &az) {
   int16_t x, y, z;
-  getXYZ(&x, &y, &z);
-  *ax = x / 14.375;
-  *ay = y / 14.375;
-  *az = z / 14.375;
+  getXYZ(x, y, z);
+  ax = x / 14.375;
+  ay = y / 14.375;
+  az = z / 14.375;
 }
 
 void ITG3200::zeroCalibrate(unsigned int samples, unsigned int sampleDelayMS) {
-  int16_t xOffsetTemp = 0;
-  int16_t yOffsetTemp = 0;
-  int16_t zOffsetTemp = 0;
+  int32_t xOffsetTemp = 0;
+  int32_t yOffsetTemp = 0;
+  int32_t zOffsetTemp = 0;
   int16_t x, y, z;
   xOffset = 0;
   yOffset = 0;
   zOffset = 0;
-  getXYZ(&x, &y, &z); //
-  for (int i = 0; i < samples; i++) {
+  getXYZ(x, y, z); //
+  for (uint32_t i = 0; i < samples; i++) {
     // delay(sampleDelayMS);
-    getXYZ(&x, &y, &z);
+    while (isRawDataReady() == false) {
+    }
+    getXYZ(x, y, z);
     xOffsetTemp += x;
     yOffsetTemp += y;
     zOffsetTemp += z;

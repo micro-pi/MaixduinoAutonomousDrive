@@ -24,16 +24,23 @@ public:
   void setMainMotorLeft(MainMotor &mainMotorLeft);
   void setMainMotorRight(MainMotor &mainMotorRight);
   void mainFunction(void);
+
+  MovingModuleCommands getLastMovingModuleCommands(void);
+  MovingModuleCommandAttribute getLastMovingModuleCommandAttribute(void);
+  MovingModuleDirection getLastMovingModuleDirection(void);
+  uint16_t getLastPwmValue(void);
+
   /**
    * @brief Destructor
    */
   virtual ~MovingModule(void);
 
+  void pwmCommand(const MovingModuleCommandAttribute commandAttribute, const uint16_t pwmValue);
+
 private:
   void stopCommand(const MovingModuleCommandAttribute commandAttribute);
   void startCommand(const MovingModuleCommandAttribute commandAttribute);
   void moveCommand(const MovingModuleCommandAttribute commandAttribute, const MovingModuleDirection movingDirection, const uint16_t pwmValue);
-  void pwmCommand(const MovingModuleCommandAttribute commandAttribute, const uint16_t pwmValue);
 
   double getDutyCyclePercentage(const uint16_t pwmValue);
 };

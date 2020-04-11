@@ -65,9 +65,24 @@ void init() {
 
   /* After init devices configurations */
   if (itg3200.getErrorCode() == E_OK) {
-    itg3200.setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
-    itg3200.setDigitalLowPassFilter(BANDWIDTH_5HZ_RATE_1KHZ);
-    itg3200.setRawDataReadyEnabled(true);
+    /* send a reset to the device */
+    (void)itg3200.resetDevice();
+
+    // itg3200.write(ITG3200_PWR_M, 0x80);      //send a reset to the device
+    itg3200.write(ITG3200_SMPL, 49);         //sample rate divider
+    itg3200.write(ITG3200_DLPF, 0b00011110); //+/-2000 degrees/s (default value)
+    itg3200.write(ITG3200_INT_C, 0b00000101);
+
+    /* sample rate divider */
+    // itg3200.setSampleRateDivider(49U);
+
+    /* +/-2000 degrees/s (default value) */
+    // itg3200.setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
+    // itg3200.setDigitalLowPassFilter(BANDWIDTH_5HZ_RATE_1KHZ);
+    // itg3200.setRawDataReadyEnabled(true);
+    // itg3200.setInterruptEnabled(true);
+
+    // itg3200.zeroCalibrate(100, 0);
 
     LOGI(TAG, "Who Am I             : 0x%02x", itg3200.whoAmI());
     LOGI(TAG, "----Sample Rate Divider----");
@@ -93,28 +108,51 @@ void init() {
     LOGI(TAG, "Clock source         : 0x%02x", itg3200.getClockSource());
   }
 
+  /* Initialize Modules 10ms */
+  k210Esp32Communication.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
+  k210Esp32Communication.setEsp32Device(esp32);
+
   /* Initialize Modules 100ms */
   movingModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
   movingModule.setMainMotorLeft(mainMotorLeft);
   movingModule.setMainMotorRight(mainMotorRight);
 
-  LOGI(TAG, "Modules 100ms: %d", NUM_OF_MODULES_100MS);
-  for (i = 0; i < NUM_OF_MODULES_100MS; i++) {
-    LOGI(TAG, "Init module '%s'", MODULES_100MS[i]->getName());
-    MODULES_100MS[i]->init();
-  }
-
-  /* Initialize Modules 10ms */
-  k210Esp32Communication.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
-  k210Esp32Communication.setEsp32Device(esp32);
-
+  /* Initialize Modules 1000ms */
   gyroModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
   gyroModule.setITG3200(itg3200);
+  gyroModule.setMovingModule(movingModule);
 
   LOGI(TAG, "Modules 10ms: %d", NUM_OF_MODULES_10MS);
   for (i = 0; i < NUM_OF_MODULES_10MS; i++) {
     LOGI(TAG, "Init module '%s'", MODULES_10MS[i]->getName());
-    MODULES_10MS[i]->init();
+    errorCode = MODULES_10MS[i]->init();
+    if (errorCode == E_OK) {
+      LOGI(TAG, "Module \"%s\" initialized successfully!", MODULES_10MS[i]->getName());
+    } else {
+      LOGW(TAG, "Module \"%s\" not initialized!", MODULES_10MS[i]->getName());
+    }
+  }
+
+  LOGI(TAG, "Modules 100ms: %d", NUM_OF_MODULES_100MS);
+  for (i = 0; i < NUM_OF_MODULES_100MS; i++) {
+    LOGI(TAG, "Init module '%s'", MODULES_100MS[i]->getName());
+    errorCode = MODULES_100MS[i]->init();
+    if (errorCode == E_OK) {
+      LOGI(TAG, "Module \"%s\" initialized successfully!", MODULES_100MS[i]->getName());
+    } else {
+      LOGW(TAG, "Module \"%s\" not initialized!", MODULES_100MS[i]->getName());
+    }
+  }
+
+  LOGI(TAG, "Modules 1000ms: %d", NUM_OF_MODULES_1000MS);
+  for (i = 0; i < NUM_OF_MODULES_1000MS; i++) {
+    LOGI(TAG, "Init module '%s'", MODULES_1000MS[i]->getName());
+    errorCode = MODULES_1000MS[i]->init();
+    if (errorCode == E_OK) {
+      LOGI(TAG, "Module \"%s\" initialized successfully!", MODULES_1000MS[i]->getName());
+    } else {
+      LOGW(TAG, "Module \"%s\" not initialized!", MODULES_1000MS[i]->getName());
+    }
   }
 }
 
@@ -146,6 +184,14 @@ int main() {
     LOGI(TAG, "Task %s run problem", "task100ms");
   } else {
     LOGI(TAG, "Rask %s is running", "task100ms");
+  }
+
+  LOGI(TAG, "Run task %s", "task1000ms");
+  xReturn = xTaskCreateAtProcessor(CORE_1, &task1000ms, "task1000ms", 4096, NULL, 2, NULL);
+  if (xReturn != pdPASS) {
+    LOGI(TAG, "Task %s run problem", "task1000ms");
+  } else {
+    LOGI(TAG, "Rask %s is running", "task1000ms");
   }
 
   for (;;) {
