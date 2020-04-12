@@ -68,8 +68,8 @@ void init() {
     /* send a reset to the device */
     (void)itg3200.resetDevice();
 
-    // itg3200.write(ITG3200_PWR_M, 0x80);      //send a reset to the device
-    itg3200.write(ITG3200_SMPL, 49);         //sample rate divider
+    // itg3200.write(ITG3200_PWR_M, 0x80);   //send a reset to the device
+    itg3200.write(ITG3200_SMPL, 19);         //sample rate divider
     itg3200.write(ITG3200_DLPF, 0b00011110); //+/-2000 degrees/s (default value)
     itg3200.write(ITG3200_INT_C, 0b00000101);
 

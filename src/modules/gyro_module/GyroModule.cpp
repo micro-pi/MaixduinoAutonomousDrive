@@ -48,7 +48,7 @@ int32_t adjustAngle(int32_t angle) {
 }
 
 int16_t filterX(int16_t x) {
-  if ((x == (-64)) || (x == (-65))) {
+  if ((x == (-65)) || (x == (-66))) {
     x = 0;
   } else {
     x += 65;
@@ -57,10 +57,10 @@ int16_t filterX(int16_t x) {
 }
 
 int16_t filterY(int16_t y) {
-  if ((y == (-38)) || (y == (-39))) {
+  if ((y == (-39)) || (y == (-40))) {
     y = 0;
   } else {
-    y += 39;
+    y += 40;
   }
   return y;
 }
@@ -69,7 +69,7 @@ int16_t filterZ(int16_t z) {
   if ((z == (-9)) || (z == (-10))) {
     z = 0;
   } else {
-    z += 9;
+    z += 10;
   }
   return z;
 }
@@ -89,9 +89,9 @@ void GyroModule::mainFunction(void) {
       z = filterZ(z);
 
       if (k >= 10) {
-        absoluteX += (int32_t)((x * 1000000) / (14.375 / 0.05));
-        absoluteY += (int32_t)((y * 1000000) / (14.375 / 0.05));
-        absoluteZ += (int32_t)((z * 1000000) / (14.375 / 0.05));
+        absoluteX += (int32_t)((x * 1000000) / (14.375 / 0.02));
+        absoluteY += (int32_t)((y * 1000000) / (14.375 / 0.02));
+        absoluteZ += (int32_t)((z * 1000000) / (14.375 / 0.02));
         absoluteX = adjustAngle(absoluteX);
         absoluteY = adjustAngle(absoluteY);
         absoluteZ = adjustAngle(absoluteZ);
