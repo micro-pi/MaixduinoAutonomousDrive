@@ -2,6 +2,7 @@
 #define MOVING_MODULE_H
 
 #include "../../devices/main_motor/MainMotor.h"
+#include "../../devices/sonars/Sonars.h"
 #include "../Module.h"
 #include "../circular_queue/CircularQueue.h"
 
@@ -13,6 +14,7 @@ private:
   xQueueHandle movingModuleCommandsQueue;
   MainMotor *mainMotorLeft;
   MainMotor *mainMotorRight;
+  Sonars *sonars;
 
 public:
   /**
@@ -23,6 +25,7 @@ public:
   void setMovingModuleCommandsQueue(xQueueHandle movingModuleCommandsQueue);
   void setMainMotorLeft(MainMotor &mainMotorLeft);
   void setMainMotorRight(MainMotor &mainMotorRight);
+  void setSonars(Sonars &sonars);
   void mainFunction(void);
 
   MovingModuleCommands getLastMovingModuleCommands(void);

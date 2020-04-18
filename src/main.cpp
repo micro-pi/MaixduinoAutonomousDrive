@@ -53,6 +53,8 @@ void init() {
 
   itg3200.setI2c(i2c0);
 
+  sonars.setI2c(i2c0);
+
   LOGI(TAG, "Devices: %d", NUM_OF_DEVICES);
   for (i = 0; i < NUM_OF_DEVICES; i++) {
     errorCode = DEVICES[i]->begin();
@@ -83,7 +85,7 @@ void init() {
     // itg3200.setInterruptEnabled(true);
 
     // itg3200.zeroCalibrate(100, 0);
-
+    LOGI(TAG, "Device               : %s", itg3200.getName());
     LOGI(TAG, "Who Am I             : 0x%02x", itg3200.whoAmI());
     LOGI(TAG, "----Sample Rate Divider----");
     LOGI(TAG, "Sample Rate Divider  : 0x%02x", itg3200.getSampleRateDivider());
@@ -108,6 +110,24 @@ void init() {
     LOGI(TAG, "Clock source         : 0x%02x", itg3200.getClockSource());
   }
 
+  if (sonars.getErrorCode() == E_OK) {
+    LOGI(TAG, "Device               : %s", sonars.getName());
+    LOGI(TAG, "Who Am I             : 0x%02x", sonars.whoAmI());
+    int16_t sonar1;
+    int16_t sonar2;
+    int16_t sonar3;
+    int16_t sonar4;
+    int16_t sonar5;
+    int16_t sonar6;
+    sonars.getAllDistances(sonar1, sonar2, sonar3, sonar4, sonar5, sonar6);
+    LOGI(TAG, "Distance 1           : %d", sonar1);
+    LOGI(TAG, "Distance 2           : %d", sonar2);
+    LOGI(TAG, "Distance 3           : %d", sonar3);
+    LOGI(TAG, "Distance 4           : %d", sonar4);
+    LOGI(TAG, "Distance 5           : %d", sonar5);
+    LOGI(TAG, "Distance 6           : %d", sonar6);
+  }
+
   /* Initialize Modules 10ms */
   k210Esp32Communication.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
   k210Esp32Communication.setEsp32Device(esp32);
@@ -116,6 +136,7 @@ void init() {
   movingModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
   movingModule.setMainMotorLeft(mainMotorLeft);
   movingModule.setMainMotorRight(mainMotorRight);
+  movingModule.setSonars(sonars);
 
   /* Initialize Modules 1000ms */
   gyroModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);

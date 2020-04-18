@@ -25,6 +25,10 @@ void MovingModule::setMainMotorRight(MainMotor &mainMotorRight) {
   this->mainMotorRight = &mainMotorRight;
 }
 
+void MovingModule::setSonars(Sonars &sonars) {
+  this->sonars = &sonars;
+}
+
 void MovingModule::mainFunction(void) {
   portBASE_TYPE xStatus;
 

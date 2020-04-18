@@ -5,12 +5,14 @@
 #include "itg3200/ITG3200.h"
 #include "led/Led.h"
 #include "main_motor/MainMotor.h"
+#include "sonars/Sonars.h"
 
 extern Led powerLed;
 extern ESP32 esp32;
 extern ITG3200 itg3200;
 extern MainMotor mainMotorLeft;
 extern MainMotor mainMotorRight;
+extern Sonars sonars;
 
 extern Device *DEVICES[];
 

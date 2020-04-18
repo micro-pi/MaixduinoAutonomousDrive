@@ -6,6 +6,7 @@ ESP32 esp32("ESP32");
 ITG3200 itg3200("ITG3205");
 MainMotor mainMotorLeft("Left Main Motor");
 MainMotor mainMotorRight("Right Main Motor");
+Sonars sonars("Sonars");
 
 Device *DEVICES[] = {
     &powerLed,
@@ -13,6 +14,7 @@ Device *DEVICES[] = {
     &itg3200,
     &mainMotorLeft,
     &mainMotorRight,
+    &sonars,
 };
 
 const uint8_t NUM_OF_DEVICES = ((uint8_t)(sizeof(DEVICES) / sizeof(Device *)));
