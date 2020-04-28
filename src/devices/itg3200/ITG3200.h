@@ -63,37 +63,37 @@
 #include <osdefs.h>
 
 typedef enum {
-  RANGE_2000_DEG_PER_SEC = 3
+  RANGE_2000_DEG_PER_SEC = 0x03u
 } FullScaleRange;
 
 typedef enum {
-  BANDWIDTH_256HZ_RATE_8KHZ = 0,
-  BANDWIDTH_188HZ_RATE_1KHZ = 1,
-  BANDWIDTH_98HZ_RATE_1KHZ = 2,
-  BANDWIDTH_42HZ_RATE_1KHZ = 3,
-  BANDWIDTH_20HZ_RATE_1KHZ = 4,
-  BANDWIDTH_10HZ_RATE_1KHZ = 5,
-  BANDWIDTH_5HZ_RATE_1KHZ = 6
+  BANDWIDTH_256HZ_RATE_8KHZ = 0x00u,
+  BANDWIDTH_188HZ_RATE_1KHZ = 0x01u,
+  BANDWIDTH_98HZ_RATE_1KHZ = 0x02u,
+  BANDWIDTH_42HZ_RATE_1KHZ = 0x03u,
+  BANDWIDTH_20HZ_RATE_1KHZ = 0x04u,
+  BANDWIDTH_10HZ_RATE_1KHZ = 0x05u,
+  BANDWIDTH_5HZ_RATE_1KHZ = 0x06u
 } LowPassFilter;
 
 typedef enum {
-  LOGIC_LEVEL_ACTIVE_HIGH = 0,
-  LOGIC_LEVEL_ACTIVE_LOW
+  LOGIC_LEVEL_ACTIVE_HIGH = 0x00u,
+  LOGIC_LEVEL_ACTIVE_LOW = 0x01u
 } LogicLevelIntOutputPin;
 
 typedef enum {
-  DRIVE_TYPE_PUSH_PULL = 0,
-  DRIVE_TYPE_OPEN_DRAIN
+  DRIVE_TYPE_PUSH_PULL = 0x00u,
+  DRIVE_TYPE_OPEN_DRAIN = 0x01u
 } DriveTypeIntOutputPin;
 
 typedef enum {
-  LATCH_MODE_50US_PULSE = 0,
-  LATCH_MODE_LATCH_INT_CLEARED
+  LATCH_MODE_50US_PULSE = 0x00u,
+  LATCH_MODE_LATCH_INT_CLEARED = 0x01u
 } LatchMode;
 
 typedef enum {
-  LATCH_2CLEAN_STATUS_REGISTER_READ_ONLY = 0,
-  LATCH_2CLEAN_ANY_REGISTER_READ
+  LATCH_2CLEAN_STATUS_REGISTER_READ_ONLY = 0x00u,
+  LATCH_2CLEAN_ANY_REGISTER_READ = 0x01u
 } LatchClearMethod;
 
 typedef enum {
@@ -104,6 +104,79 @@ typedef enum {
   PLL_EXTERNAL_32_768KHZ_REFERENCE = 4,
   PLL_EXTERNAL_19_2KHZ_REFERENCE = 5
 } ClockSource;
+
+#pragma pack(1)
+typedef union {
+  uint8_t value;
+#pragma pack(1)
+  struct {
+    /**
+     * The DLPF_CFG parameter sets the digital low pass filter configuration.
+     * It also determines the internal sampling rate used by the device.
+     * Bit0 - Bit2
+     */
+    LowPassFilter lowPassFilter : 3;
+    /**
+     * The FS_SEL parameter allows setting the full-scale range of the gyro sensors.
+     * The power-on-reset value of FS_SEL is 00h. Set to 03h for proper operation.
+     * Bit3 - Bit4
+     */
+    FullScaleRange fullScaleRange : 2;
+    /**
+     * Must be zero
+     * Bit5 - Bit7
+     */
+    uint8_t zero765 : 3;
+  } config;
+} ITG3200DlpfFsConfig;
+
+#pragma pack(1)
+typedef union {
+  uint8_t value;
+#pragma pack(1)
+  struct {
+    /**
+     * RAW_RDY_EN - Enable interrupt when data is available
+     * Bit0
+     */
+    bool rawDataReadyEnabled : 1;
+    /**
+     * Must be zero
+     * Bit1
+     */
+    uint8_t zero1 : 1;
+    /**
+     * ITG_RDY_EN - Enable interrupt when device is ready (PLL ready after changing clock source)
+     * Bit2
+     */
+    bool interruptEnabled : 1;
+    /**
+     * Must be zero
+     * Bit3
+     */
+    uint8_t zero3 : 1;
+    /**
+    * INT_ANYRD_2CLEAR - Latch clear method: 1=any register read, 0=status register read only
+    * Bit4
+    */
+    LatchClearMethod latchClearMethod : 1;
+    /**
+     * LATCH_INT_EN - Latch mode: 1=latch until interrupt is cleared, 0=50us pulse
+     * Bit5
+     */
+    LatchMode latchMode : 1;
+    /**
+     * OPEN - Drive type for INT output pin: 1=open drain, 0=push-pull
+     * Bit6
+     */
+    DriveTypeIntOutputPin driveTypeIntOutputPin : 1;
+    /**
+     * ACTL - Logic level for INT output pin: 1=active low, 0=active high
+     * Bit7
+     */
+    LogicLevelIntOutputPin logicLevelIntOutputPin : 1;
+  } config;
+} ITG3200InterruptConfig;
 
 class ITG3200 : public Device {
 private:
@@ -135,29 +208,11 @@ public:
   uint8_t getSampleRateDivider(void);
   void setSampleRateDivider(const uint8_t sampleRateDivider);
 
-  FullScaleRange getFullScaleSelection(void);
-  void setFullScaleSelection(FullScaleRange fullScale);
+  void setDlpfFsConfig(const ITG3200DlpfFsConfig dlpfFsConfig);
+  ITG3200DlpfFsConfig getDlpfFsConfig(void);
 
-  void setDigitalLowPassFilter(LowPassFilter lowPassFilterBandwidth);
-  LowPassFilter getDigitalLowPassFilter(void);
-
-  bool isRawDataReadyEnabled(void);
-  void setRawDataReadyEnabled(bool enable);
-
-  bool isInterruptEnabled(void);
-  void setInterruptEnabled(bool enable);
-
-  LogicLevelIntOutputPin getLogicLevelIntOutputPin(void);
-  void setLogicLevelIntOutputPin(LogicLevelIntOutputPin logicLevelIntOutputPin);
-
-  DriveTypeIntOutputPin getDriveTypeIntOutputPin(void);
-  void setDriveTypeIntOutputPin(DriveTypeIntOutputPin driveTypeIntOutputPin);
-
-  LatchMode getLatchMode(void);
-  void setLatchMode(LatchMode latchMode);
-
-  LatchClearMethod getLatchClearMethod(void);
-  void setLatchClearMethod(LatchClearMethod latchClearMethod);
+  void setInterruptConfig(const ITG3200InterruptConfig interruptConfig);
+  ITG3200InterruptConfig getInterruptConfig(void);
 
   bool isPllReady(void);
   bool isRawDataReady(void);

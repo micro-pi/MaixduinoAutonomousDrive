@@ -25,6 +25,9 @@ void init() {
   handle_t spi0;
   handle_t pwm0;
 
+  ITG3200DlpfFsConfig dlpfFsConfig;
+  ITG3200InterruptConfig interruptConfig;
+
   /* Initialize Objects */
   movingModuleCommandsQueue = xQueueCreate(16, sizeof(MovingModuleInterface));
 
@@ -71,34 +74,38 @@ void init() {
     (void)itg3200.resetDevice();
 
     // itg3200.write(ITG3200_PWR_M, 0x80);   //send a reset to the device
-    itg3200.write(ITG3200_SMPL, 19);         //sample rate divider
-    itg3200.write(ITG3200_DLPF, 0b00011110); //+/-2000 degrees/s (default value)
-    itg3200.write(ITG3200_INT_C, 0b00000101);
+    itg3200.write(ITG3200_SMPL, 19); //sample rate divider
 
     /* sample rate divider */
     // itg3200.setSampleRateDivider(49U);
 
-    /* +/-2000 degrees/s (default value) */
-    // itg3200.setFullScaleSelection(RANGE_2000_DEG_PER_SEC);
-    // itg3200.setDigitalLowPassFilter(BANDWIDTH_5HZ_RATE_1KHZ);
-    // itg3200.setRawDataReadyEnabled(true);
-    // itg3200.setInterruptEnabled(true);
+    dlpfFsConfig.value = 0x00u;
+    dlpfFsConfig.config.fullScaleRange = RANGE_2000_DEG_PER_SEC;
+    dlpfFsConfig.config.lowPassFilter = BANDWIDTH_5HZ_RATE_1KHZ;
+    itg3200.setDlpfFsConfig(dlpfFsConfig);
+
+    interruptConfig.value = 0x00u;
+    interruptConfig.config.interruptEnabled = true;
+    interruptConfig.config.rawDataReadyEnabled = true;
+    itg3200.setInterruptConfig(interruptConfig);
 
     // itg3200.zeroCalibrate(100, 0);
+    dlpfFsConfig = itg3200.getDlpfFsConfig();
+    interruptConfig = itg3200.getInterruptConfig();
     LOGI(TAG, "Device               : %s", itg3200.getName());
     LOGI(TAG, "Who Am I             : 0x%02x", itg3200.whoAmI());
     LOGI(TAG, "----Sample Rate Divider----");
     LOGI(TAG, "Sample Rate Divider  : 0x%02x", itg3200.getSampleRateDivider());
     LOGI(TAG, "------DLPF, Full Scale-----");
-    LOGI(TAG, "Full scale selection : 0x%02x", itg3200.getFullScaleSelection());
-    LOGI(TAG, "Digital low pass     : 0x%02x", itg3200.getDigitalLowPassFilter());
+    LOGI(TAG, "Full scale selection : 0x%02x", dlpfFsConfig.config.fullScaleRange);
+    LOGI(TAG, "Digital low pass     : 0x%02x", dlpfFsConfig.config.lowPassFilter);
     LOGI(TAG, "--Interrupt Configuration--");
-    LOGI(TAG, "Logic level          : 0x%02x", itg3200.getLogicLevelIntOutputPin());
-    LOGI(TAG, "Drive type           : 0x%02x", itg3200.getDriveTypeIntOutputPin());
-    LOGI(TAG, "Latch mode           : 0x%02x", itg3200.getLatchMode());
-    LOGI(TAG, "Latch clear method   : 0x%02x", itg3200.getLatchClearMethod());
-    LOGI(TAG, "Interrupt Enabled    : 0x%02x", itg3200.isInterruptEnabled());
-    LOGI(TAG, "Raw data ready       : 0x%02x", itg3200.isRawDataReadyEnabled());
+    LOGI(TAG, "Logic level          : 0x%02x", interruptConfig.config.logicLevelIntOutputPin);
+    LOGI(TAG, "Drive type           : 0x%02x", interruptConfig.config.driveTypeIntOutputPin);
+    LOGI(TAG, "Latch mode           : 0x%02x", interruptConfig.config.latchMode);
+    LOGI(TAG, "Latch clear method   : 0x%02x", interruptConfig.config.latchClearMethod);
+    LOGI(TAG, "Interrupt Enabled    : 0x%02x", interruptConfig.config.interruptEnabled);
+    LOGI(TAG, "Raw data ready       : 0x%02x", interruptConfig.config.rawDataReadyEnabled);
     LOGI(TAG, "------Interrupt Status-----");
     LOGI(TAG, "PLL ready            : 0x%02x", itg3200.isPllReady());
     LOGI(TAG, "Raw data is ready    : 0x%02x", itg3200.isRawDataReady());

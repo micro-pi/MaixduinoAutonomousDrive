@@ -17,10 +17,10 @@ void ITG3200::setI2c(const handle_t i2c) {
  * @brief Initialization for ITG3200.
  */
 ErrorCode ITG3200::initDevice() {
-  uint32_t ctx;
+  // uint32_t ctx;
   ErrorCode errorCode;
-  int bytes;
-  uint8_t data;
+  // int bytes;
+  // uint8_t data;
 
   if (this->i2c > 0) {
     this->device = i2c_get_device(this->i2c, GYRO_ADDRESS, 7);
@@ -197,122 +197,24 @@ void ITG3200::setSampleRateDivider(const uint8_t sampleRateDivider) {
   this->write(ITG3200_SMPL, sampleRateDivider);
 }
 
-FullScaleRange ITG3200::getFullScaleSelection(void) {
-  uint8_t fullScale;
-  fullScale = this->getRegisterValue(ITG3200_DLPF, FS_SEL_MASK, FS_SEL_BIT);
-  return static_cast<FullScaleRange>(fullScale);
+void ITG3200::setDlpfFsConfig(const ITG3200DlpfFsConfig dlpfFsConfig) {
+  this->write(ITG3200_DLPF, dlpfFsConfig.value);
 }
 
-void ITG3200::setFullScaleSelection(FullScaleRange fullScale) {
-  uint8_t uFullScale = static_cast<uint8_t>(fullScale);
-  this->setRegisterBitsValue(ITG3200_DLPF, FS_SEL_MASK, FS_SEL_BIT, uFullScale);
+ITG3200DlpfFsConfig ITG3200::getDlpfFsConfig(void) {
+  ITG3200DlpfFsConfig dlpfFsConfig;
+  dlpfFsConfig.value = this->read(ITG3200_DLPF);
+  return dlpfFsConfig;
 }
 
-void ITG3200::setDigitalLowPassFilter(LowPassFilter lowPassFilterBandwidth) {
-  uint8_t ulowPassFilterBandwidth = static_cast<uint8_t>(lowPassFilterBandwidth);
-  this->setRegisterBitsValue(ITG3200_DLPF, DLPF_CFG_MASK, DLPF_CFG_BIT, ulowPassFilterBandwidth);
+void ITG3200::setInterruptConfig(const ITG3200InterruptConfig interruptConfig) {
+  this->write(ITG3200_INT_C, interruptConfig.value);
 }
 
-LowPassFilter ITG3200::getDigitalLowPassFilter(void) {
-  uint8_t lowPassFilterBandwidth;
-  lowPassFilterBandwidth = this->getRegisterValue(ITG3200_DLPF, DLPF_CFG_MASK, DLPF_CFG_BIT);
-  return static_cast<LowPassFilter>(lowPassFilterBandwidth);
-}
-
-bool ITG3200::isRawDataReadyEnabled(void) {
-  return this->getRegisterValue(ITG3200_INT_C, RAW_RDY_EN_MASK, RAW_RDY_EN_BIT) == 0b1U;
-}
-
-void ITG3200::setRawDataReadyEnabled(bool enable) {
-  if (enable == true) {
-    this->setRegisterBits(ITG3200_INT_C, RAW_RDY_EN_MASK, RAW_RDY_EN_BIT);
-  } else {
-    this->clearRegisterBits(ITG3200_INT_C, RAW_RDY_EN_MASK, RAW_RDY_EN_BIT);
-  }
-}
-
-bool ITG3200::isInterruptEnabled(void) {
-  return this->getRegisterValue(ITG3200_INT_C, ITG_RDY_EN_MASK, ITG_RDY_EN_BIT) == 0b1U;
-}
-
-void ITG3200::setInterruptEnabled(bool enable) {
-  if (enable == true) {
-    this->setRegisterBits(ITG3200_INT_C, ITG_RDY_EN_MASK, ITG_RDY_EN_BIT);
-  } else {
-    this->clearRegisterBits(ITG3200_INT_C, ITG_RDY_EN_MASK, ITG_RDY_EN_BIT);
-  }
-}
-
-LogicLevelIntOutputPin ITG3200::getLogicLevelIntOutputPin(void) {
-  uint8_t logicLevelIntOutputPin;
-  logicLevelIntOutputPin = this->getRegisterValue(ITG3200_INT_C, ACTL_MASK, ACTL_BIT);
-  if (logicLevelIntOutputPin == 0u) {
-    return LOGIC_LEVEL_ACTIVE_HIGH;
-  } else {
-    return LOGIC_LEVEL_ACTIVE_LOW;
-  }
-}
-
-void ITG3200::setLogicLevelIntOutputPin(LogicLevelIntOutputPin logicLevelIntOutputPin) {
-  if (logicLevelIntOutputPin == LOGIC_LEVEL_ACTIVE_LOW) {
-    this->setRegisterBits(ITG3200_INT_C, ACTL_MASK, ACTL_BIT);
-  } else {
-    this->clearRegisterBits(ITG3200_INT_C, ACTL_MASK, ACTL_BIT);
-  }
-}
-
-DriveTypeIntOutputPin ITG3200::getDriveTypeIntOutputPin(void) {
-  uint8_t driveTypeIntOutputPin;
-  driveTypeIntOutputPin = this->getRegisterValue(ITG3200_INT_C, OPEN_MASK, OPEN_BIT);
-  if (driveTypeIntOutputPin == 0u) {
-    return DRIVE_TYPE_PUSH_PULL;
-  } else {
-    return DRIVE_TYPE_OPEN_DRAIN;
-  }
-}
-
-void ITG3200::setDriveTypeIntOutputPin(DriveTypeIntOutputPin driveTypeIntOutputPin) {
-  if (driveTypeIntOutputPin == DRIVE_TYPE_OPEN_DRAIN) {
-    this->setRegisterBits(ITG3200_INT_C, OPEN_MASK, OPEN_BIT);
-  } else {
-    this->clearRegisterBits(ITG3200_INT_C, OPEN_MASK, OPEN_BIT);
-  }
-}
-
-LatchMode ITG3200::getLatchMode(void) {
-  uint8_t latchMode;
-  latchMode = this->getRegisterValue(ITG3200_INT_C, LATCH_INT_EN_MASK, LATCH_INT_EN_BIT);
-  if (latchMode == 0u) {
-    return LATCH_MODE_50US_PULSE;
-  } else {
-    return LATCH_MODE_LATCH_INT_CLEARED;
-  }
-}
-
-void ITG3200::setLatchMode(LatchMode latchMode) {
-  if (latchMode == LATCH_MODE_LATCH_INT_CLEARED) {
-    this->setRegisterBits(ITG3200_INT_C, LATCH_INT_EN_MASK, LATCH_INT_EN_BIT);
-  } else {
-    this->clearRegisterBits(ITG3200_INT_C, LATCH_INT_EN_MASK, LATCH_INT_EN_BIT);
-  }
-}
-
-LatchClearMethod ITG3200::getLatchClearMethod(void) {
-  uint8_t latchClearMethod;
-  latchClearMethod = this->getRegisterValue(ITG3200_INT_C, INT_ANYRD_2CLEAR_MASK, INT_ANYRD_2CLEAR_BIT);
-  if (latchClearMethod == 0u) {
-    return LATCH_2CLEAN_STATUS_REGISTER_READ_ONLY;
-  } else {
-    return LATCH_2CLEAN_ANY_REGISTER_READ;
-  }
-}
-
-void ITG3200::setLatchClearMethod(LatchClearMethod latchClearMethod) {
-  if (latchClearMethod == LATCH_2CLEAN_ANY_REGISTER_READ) {
-    this->setRegisterBits(ITG3200_INT_C, INT_ANYRD_2CLEAR_MASK, INT_ANYRD_2CLEAR_BIT);
-  } else {
-    this->clearRegisterBits(ITG3200_INT_C, INT_ANYRD_2CLEAR_MASK, INT_ANYRD_2CLEAR_BIT);
-  }
+ITG3200InterruptConfig ITG3200::getInterruptConfig(void) {
+  ITG3200InterruptConfig interruptConfig;
+  interruptConfig.value = this->read(ITG3200_INT_C);
+  return interruptConfig;
 }
 
 bool ITG3200::isPllReady(void) {
