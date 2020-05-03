@@ -119,29 +119,15 @@ void init() {
     LOGI(TAG, "Clock source         : 0x%02x", itg3200.getClockSource());
   }
 
-  // if (sonars.getErrorCode() == E_OK) {
-  //   LOGI(TAG, "Device               : %s", sonars.getName());
-  //   LOGI(TAG, "Who Am I             : 0x%02x", sonars.whoAmI());
-  //   int16_t sonar1;
-  //   int16_t sonar2;
-  //   int16_t sonar3;
-  //   int16_t sonar4;
-  //   int16_t sonar5;
-  //   int16_t sonar6;
-  //   sonars.getAllDistances(sonar1, sonar2, sonar3, sonar4, sonar5, sonar6);
-  //   LOGI(TAG, "Distance 1           : %d", sonar1);
-  //   LOGI(TAG, "Distance 2           : %d", sonar2);
-  //   LOGI(TAG, "Distance 3           : %d", sonar3);
-  //   LOGI(TAG, "Distance 4           : %d", sonar4);
-  //   LOGI(TAG, "Distance 5           : %d", sonar5);
-  //   LOGI(TAG, "Distance 6           : %d", sonar6);
-  // }
-
-  globalData.initModule();
-
   /* Initialize Modules 10ms */
   k210Esp32Communication.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
   k210Esp32Communication.setEsp32Device(esp32);
+
+  /* Initialize Modules 10ms 2 */
+  gyroModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
+  gyroModule.setITG3200(itg3200);
+  gyroModule.setGlobalData(globalData);
+  gyroModule.setMovingModule(movingModule);
 
   /* Initialize Modules 20ms */
   sonarsModule.setSonars(sonars);
@@ -154,9 +140,6 @@ void init() {
   movingModule.setSonars(sonars);
 
   /* Initialize Modules 1000ms */
-  gyroModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
-  gyroModule.setITG3200(itg3200);
-  gyroModule.setMovingModule(movingModule);
 
   LOGI(TAG, "Modules 10ms: %d", NUM_OF_MODULES_10MS);
   for (i = 0; i < NUM_OF_MODULES_10MS; i++) {
@@ -166,6 +149,17 @@ void init() {
       LOGI(TAG, "Module \"%s\" initialized successfully!", MODULES_10MS[i]->getName());
     } else {
       LOGW(TAG, "Module \"%s\" not initialized!", MODULES_10MS[i]->getName());
+    }
+  }
+
+  LOGI(TAG, "Modules 10ms2: %d", NUM_OF_MODULES_10MS2);
+  for (i = 0; i < NUM_OF_MODULES_10MS2; i++) {
+    LOGI(TAG, "Init module '%s'", MODULES_10MS2[i]->getName());
+    errorCode = MODULES_10MS2[i]->init();
+    if (errorCode == E_OK) {
+      LOGI(TAG, "Module \"%s\" initialized successfully!", MODULES_10MS2[i]->getName());
+    } else {
+      LOGW(TAG, "Module \"%s\" not initialized!", MODULES_10MS2[i]->getName());
     }
   }
 
@@ -230,8 +224,16 @@ int main() {
     LOGI(TAG, "Rask %s is running", "task100ms");
   }
 
+  LOGI(TAG, "Run task %s", "task10ms2");
+  xReturn = xTaskCreateAtProcessor(CORE_1, &task10ms2, "task10ms2", 4096, NULL, 2, NULL);
+  if (xReturn != pdPASS) {
+    LOGI(TAG, "Task %s run problem", "task10ms2");
+  } else {
+    LOGI(TAG, "Rask %s is running", "task10ms2");
+  }
+
   LOGI(TAG, "Run task %s", "task1000ms");
-  xReturn = xTaskCreateAtProcessor(CORE_1, &task1000ms, "task1000ms", 4096, NULL, 2, NULL);
+  xReturn = xTaskCreateAtProcessor(CORE_1, &task1000ms, "task1000ms", 4096, NULL, 3, NULL);
   if (xReturn != pdPASS) {
     LOGI(TAG, "Task %s run problem", "task1000ms");
   } else {

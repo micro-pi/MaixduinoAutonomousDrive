@@ -21,11 +21,13 @@ extern GyroModule gyroModule;
 extern SonarsModule sonarsModule;
 
 extern Module *MODULES_10MS[];
+extern Module *MODULES_10MS2[];
 extern Module *MODULES_20MS[];
 extern Module *MODULES_100MS[];
 extern Module *MODULES_1000MS[];
 
 extern const uint8_t NUM_OF_MODULES_10MS;
+extern const uint8_t NUM_OF_MODULES_10MS2;
 extern const uint8_t NUM_OF_MODULES_20MS;
 extern const uint8_t NUM_OF_MODULES_100MS;
 extern const uint8_t NUM_OF_MODULES_1000MS;

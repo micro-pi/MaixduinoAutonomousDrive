@@ -35,9 +35,16 @@ typedef struct {
   int16_t sonar6;
 } SonarsData;
 
+typedef struct {
+  int32_t absoluteX;
+  int32_t absoluteY;
+  int32_t absoluteZ;
+} GyroData;
+
 class GlobalData : public Module {
 private:
   SonarsData sonarsData;
+  GyroData gyroData;
 
 public:
   /**
@@ -47,6 +54,7 @@ public:
   ErrorCode initModule(void);
   void mainFunction(void);
   void setSonarsData(SonarsData &sonarsData);
+  void setGyroData(GyroData &gyroData);
   ~GlobalData(void);
 };
 

@@ -15,6 +15,10 @@ Module *MODULES_10MS[] = {
     &k210Esp32Communication,
 };
 
+Module *MODULES_10MS2[] = {
+    &gyroModule,
+};
+
 Module *MODULES_20MS[] = {
     &sonarsModule,
 };
@@ -26,10 +30,11 @@ Module *MODULES_100MS[] = {
 };
 
 Module *MODULES_1000MS[] = {
-    &gyroModule,
+    &globalData,
 };
 
 const uint8_t NUM_OF_MODULES_10MS = ((uint8_t)(sizeof(MODULES_10MS) / sizeof(Module *)));
+const uint8_t NUM_OF_MODULES_10MS2 = ((uint8_t)(sizeof(MODULES_10MS2) / sizeof(Module *)));
 const uint8_t NUM_OF_MODULES_20MS = ((uint8_t)(sizeof(MODULES_20MS) / sizeof(Module *)));
 const uint8_t NUM_OF_MODULES_100MS = ((uint8_t)(sizeof(MODULES_100MS) / sizeof(Module *)));
 const uint8_t NUM_OF_MODULES_1000MS = ((uint8_t)(sizeof(MODULES_1000MS) / sizeof(Module *)));
