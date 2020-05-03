@@ -233,7 +233,7 @@ int main() {
   }
 
   LOGI(TAG, "Run task %s", "task1000ms");
-  xReturn = xTaskCreateAtProcessor(CORE_1, &task1000ms, "task1000ms", 4096, NULL, 3, NULL);
+  xReturn = xTaskCreateAtProcessor(CORE_1, &task1000ms, "task1000ms", 8192, NULL, 3, NULL);
   if (xReturn != pdPASS) {
     LOGI(TAG, "Task %s run problem", "task1000ms");
   } else {

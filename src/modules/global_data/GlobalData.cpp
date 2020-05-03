@@ -23,7 +23,8 @@ ErrorCode GlobalData::initModule(void) {
 void GlobalData::mainFunction(void) {
   // LOGI(TAG, "Axe X [%.4f]", (double)gyroData.absoluteX / 1000000);
   // LOGI(TAG, "Axe Y [%.4f]", (double)gyroData.absoluteY / 1000000);
-  LOGI(TAG, "Axe Z [%.4f]", (double)gyroData.absoluteZ / 1000000);
+  // LOGI(TAG, "Axe Z [%.4f]", (double)gyroData.absoluteZ / 1000000);
+  LOGI(TAG, "Axes: X:[%.4f] Y:[%.4f] Z:[%.4f]", (double)gyroData.absoluteX / 1000000, (double)gyroData.absoluteY / 1000000, (double)gyroData.absoluteZ / 1000000);
   LOGI(TAG, "Distance F: %d mm", sonarsData.sonar1);
   LOGI(TAG, "Distance R: %d mm", sonarsData.sonar2);
   LOGI(TAG, "Distance L: %d mm", sonarsData.sonar3);
