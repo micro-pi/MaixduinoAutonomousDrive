@@ -81,7 +81,7 @@ void GyroModule::mainFunction(void) {
   static bool flag = false;
 
   if ((movingModuleCommandsQueue != nullptr) && (itg3200 != nullptr) && (itg3200->getErrorCode() == E_OK)) {
-    if (itg3200->isRawDataReady() == true) {
+    if (itg3200->getInterruptStatus().status.rawDataReady == true) {
       itg3200->getXYZ(x, y, z);
       // LOGI(TAG, "[%05d] [%05d] [%05d]", x, y, z);
       x = filterX(x);
@@ -159,7 +159,7 @@ void GyroModule::mainFunction(void) {
 
         if (n >= 10) {
           n = 0;
-          LOGI(TAG, "[%.4f] [%.4f] [%.4f]", absoluteX * 0.000001, absoluteY * 0.000001, absoluteZ * 0.000001);
+          //LOGI(TAG, "[%.4f] [%.4f] [%.4f]", absoluteX * 0.000001, absoluteY * 0.000001, absoluteZ * 0.000001);
         } else {
           n++;
         }

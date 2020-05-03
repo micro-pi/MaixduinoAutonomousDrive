@@ -178,6 +178,34 @@ typedef union {
   } config;
 } ITG3200InterruptConfig;
 
+#pragma pack(1)
+typedef union {
+  uint8_t value;
+#pragma pack(1)
+  struct {
+    /**
+     * RAW_DATA_RDY - Raw data is ready
+     * Bit0
+     */
+    bool rawDataReady : 1;
+    /**
+     * Must be zero
+     * Bit1
+     */
+    uint8_t zero1 : 1;
+    /**
+     * ITG_RDY - PLL ready. Interrupt Status bits get cleared as determined by INT_ANYRD_2CLEAR in the interrupt configuration register (23).
+     * Bit2
+     */
+    bool pllReady : 1;
+    /**
+     * Must be zero
+     * Bit3 - Bit7
+     */
+    uint8_t zero76543 : 5;
+  } status;
+} ITG3200InterruptStatus;
+
 class ITG3200 : public Device {
 private:
   uint8_t writeBuffer[8];
@@ -214,8 +242,7 @@ public:
   void setInterruptConfig(const ITG3200InterruptConfig interruptConfig);
   ITG3200InterruptConfig getInterruptConfig(void);
 
-  bool isPllReady(void);
-  bool isRawDataReady(void);
+  ITG3200InterruptStatus getInterruptStatus(void);
 
   int resetDevice(void);
 

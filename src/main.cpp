@@ -27,6 +27,7 @@ void init() {
 
   ITG3200DlpfFsConfig dlpfFsConfig;
   ITG3200InterruptConfig interruptConfig;
+  ITG3200InterruptStatus interruptStatus;
 
   /* Initialize Objects */
   movingModuleCommandsQueue = xQueueCreate(16, sizeof(MovingModuleInterface));
@@ -74,10 +75,10 @@ void init() {
     (void)itg3200.resetDevice();
 
     // itg3200.write(ITG3200_PWR_M, 0x80);   //send a reset to the device
-    itg3200.write(ITG3200_SMPL, 19); //sample rate divider
+    // itg3200.write(ITG3200_SMPL, 19); //sample rate divider
 
     /* sample rate divider */
-    // itg3200.setSampleRateDivider(49U);
+    itg3200.setSampleRateDivider(19U);
 
     dlpfFsConfig.value = 0x00u;
     dlpfFsConfig.config.fullScaleRange = RANGE_2000_DEG_PER_SEC;
@@ -92,6 +93,7 @@ void init() {
     // itg3200.zeroCalibrate(100, 0);
     dlpfFsConfig = itg3200.getDlpfFsConfig();
     interruptConfig = itg3200.getInterruptConfig();
+    interruptStatus = itg3200.getInterruptStatus();
     LOGI(TAG, "Device               : %s", itg3200.getName());
     LOGI(TAG, "Who Am I             : 0x%02x", itg3200.whoAmI());
     LOGI(TAG, "----Sample Rate Divider----");
@@ -107,8 +109,8 @@ void init() {
     LOGI(TAG, "Interrupt Enabled    : 0x%02x", interruptConfig.config.interruptEnabled);
     LOGI(TAG, "Raw data ready       : 0x%02x", interruptConfig.config.rawDataReadyEnabled);
     LOGI(TAG, "------Interrupt Status-----");
-    LOGI(TAG, "PLL ready            : 0x%02x", itg3200.isPllReady());
-    LOGI(TAG, "Raw data is ready    : 0x%02x", itg3200.isRawDataReady());
+    LOGI(TAG, "PLL ready            : 0x%02x", interruptStatus.status.pllReady);
+    LOGI(TAG, "Raw data is ready    : 0x%02x", interruptStatus.status.rawDataReady);
     LOGI(TAG, "------Power Management-----");
     LOGI(TAG, "Low power sleep mode : 0x%02x", itg3200.isSleepMode());
     LOGI(TAG, "X in standby mode    : 0x%02x", itg3200.isStandbyModeX());
@@ -117,23 +119,23 @@ void init() {
     LOGI(TAG, "Clock source         : 0x%02x", itg3200.getClockSource());
   }
 
-  if (sonars.getErrorCode() == E_OK) {
-    LOGI(TAG, "Device               : %s", sonars.getName());
-    LOGI(TAG, "Who Am I             : 0x%02x", sonars.whoAmI());
-    int16_t sonar1;
-    int16_t sonar2;
-    int16_t sonar3;
-    int16_t sonar4;
-    int16_t sonar5;
-    int16_t sonar6;
-    sonars.getAllDistances(sonar1, sonar2, sonar3, sonar4, sonar5, sonar6);
-    LOGI(TAG, "Distance 1           : %d", sonar1);
-    LOGI(TAG, "Distance 2           : %d", sonar2);
-    LOGI(TAG, "Distance 3           : %d", sonar3);
-    LOGI(TAG, "Distance 4           : %d", sonar4);
-    LOGI(TAG, "Distance 5           : %d", sonar5);
-    LOGI(TAG, "Distance 6           : %d", sonar6);
-  }
+  // if (sonars.getErrorCode() == E_OK) {
+  //   LOGI(TAG, "Device               : %s", sonars.getName());
+  //   LOGI(TAG, "Who Am I             : 0x%02x", sonars.whoAmI());
+  //   int16_t sonar1;
+  //   int16_t sonar2;
+  //   int16_t sonar3;
+  //   int16_t sonar4;
+  //   int16_t sonar5;
+  //   int16_t sonar6;
+  //   sonars.getAllDistances(sonar1, sonar2, sonar3, sonar4, sonar5, sonar6);
+  //   LOGI(TAG, "Distance 1           : %d", sonar1);
+  //   LOGI(TAG, "Distance 2           : %d", sonar2);
+  //   LOGI(TAG, "Distance 3           : %d", sonar3);
+  //   LOGI(TAG, "Distance 4           : %d", sonar4);
+  //   LOGI(TAG, "Distance 5           : %d", sonar5);
+  //   LOGI(TAG, "Distance 6           : %d", sonar6);
+  // }
 
   /* Initialize Modules 10ms */
   k210Esp32Communication.setMovingModuleCommandsQueue(movingModuleCommandsQueue);

@@ -139,7 +139,7 @@ void ITG3200::zeroCalibrate(unsigned int samples, unsigned int sampleDelayMS) {
   getXYZ(x, y, z); //
   for (uint32_t i = 0; i < samples; i++) {
     // delay(sampleDelayMS);
-    while (isRawDataReady() == false) {
+    while (getInterruptStatus().status.rawDataReady == false) {
     }
     getXYZ(x, y, z);
     xOffsetTemp += x;
@@ -217,12 +217,10 @@ ITG3200InterruptConfig ITG3200::getInterruptConfig(void) {
   return interruptConfig;
 }
 
-bool ITG3200::isPllReady(void) {
-  return this->getRegisterValue(ITG3200_INT_S, ITG_RDY_MASK, ITG_RDY_BIT) == 0b1U;
-}
-
-bool ITG3200::isRawDataReady(void) {
-  return this->getRegisterValue(ITG3200_INT_S, RAW_DATA_RDY_MASK, RAW_DATA_RDY_BIT) == 0b1U;
+ITG3200InterruptStatus ITG3200::getInterruptStatus(void) {
+  ITG3200InterruptStatus interruptStatus;
+  interruptStatus.value = this->read(ITG3200_INT_S);
+  return interruptStatus;
 }
 
 int ITG3200::resetDevice(void) {
