@@ -90,7 +90,7 @@ void init() {
     interruptConfig.config.rawDataReadyEnabled = true;
     itg3200.setInterruptConfig(interruptConfig);
 
-    // itg3200.zeroCalibrate(100, 0);
+    itg3200.zeroCalibrate(20, 0);
     dlpfFsConfig = itg3200.getDlpfFsConfig();
     interruptConfig = itg3200.getInterruptConfig();
     interruptStatus = itg3200.getInterruptStatus();
@@ -137,9 +137,15 @@ void init() {
   //   LOGI(TAG, "Distance 6           : %d", sonar6);
   // }
 
+  globalData.initModule();
+
   /* Initialize Modules 10ms */
   k210Esp32Communication.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
   k210Esp32Communication.setEsp32Device(esp32);
+
+  /* Initialize Modules 20ms */
+  sonarsModule.setSonars(sonars);
+  sonarsModule.setGlobalData(globalData);
 
   /* Initialize Modules 100ms */
   movingModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
@@ -206,6 +212,14 @@ int main() {
     LOGI(TAG, "Task %s run problem", "task10ms");
   } else {
     LOGI(TAG, "Rask %s is running", "task10ms");
+  }
+
+  LOGI(TAG, "Run task %s", "task20ms");
+  xReturn = xTaskCreateAtProcessor(CORE_0, &task20ms, "task20ms", 4096, NULL, 2, NULL);
+  if (xReturn != pdPASS) {
+    LOGI(TAG, "Task %s run problem", "task20ms");
+  } else {
+    LOGI(TAG, "Rask %s is running", "task20ms");
   }
 
   LOGI(TAG, "Run task %s", "task100ms");

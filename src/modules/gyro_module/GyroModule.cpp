@@ -47,33 +47,6 @@ int32_t adjustAngle(int32_t angle) {
   return angle;
 }
 
-int16_t filterX(int16_t x) {
-  if ((x == (-65)) || (x == (-66))) {
-    x = 0;
-  } else {
-    x += 65;
-  }
-  return x;
-}
-
-int16_t filterY(int16_t y) {
-  if ((y == (-39)) || (y == (-40))) {
-    y = 0;
-  } else {
-    y += 40;
-  }
-  return y;
-}
-
-int16_t filterZ(int16_t z) {
-  if ((z == (-9)) || (z == (-10))) {
-    z = 0;
-  } else {
-    z += 10;
-  }
-  return z;
-}
-
 void GyroModule::mainFunction(void) {
   static int32_t refAbsoluteZ;
   static uint8_t k = 0;
@@ -84,14 +57,12 @@ void GyroModule::mainFunction(void) {
     if (itg3200->getInterruptStatus().status.rawDataReady == true) {
       itg3200->getXYZ(x, y, z);
       // LOGI(TAG, "[%05d] [%05d] [%05d]", x, y, z);
-      x = filterX(x);
-      y = filterY(y);
-      z = filterZ(z);
 
       if (k >= 10) {
-        absoluteX += (int32_t)((x * 1000000) / (14.375 / 0.02));
-        absoluteY += (int32_t)((y * 1000000) / (14.375 / 0.02));
-        absoluteZ += (int32_t)((z * 1000000) / (14.375 / 0.02));
+        /* (14.375 / 0.02) == 718.75 */
+        absoluteX += (int32_t)((x * 1000000) / (718.75));
+        absoluteY += (int32_t)((y * 1000000) / (718.75));
+        absoluteZ += (int32_t)((z * 1000000) / (718.75));
         absoluteX = adjustAngle(absoluteX);
         absoluteY = adjustAngle(absoluteY);
         absoluteZ = adjustAngle(absoluteZ);
@@ -159,7 +130,7 @@ void GyroModule::mainFunction(void) {
 
         if (n >= 10) {
           n = 0;
-          //LOGI(TAG, "[%.4f] [%.4f] [%.4f]", absoluteX * 0.000001, absoluteY * 0.000001, absoluteZ * 0.000001);
+          // LOGI(TAG, "[%.4f] [%.4f] [%.4f]", absoluteX * 0.000001, absoluteY * 0.000001, absoluteZ * 0.000001);
         } else {
           n++;
         }
