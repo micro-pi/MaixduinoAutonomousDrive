@@ -133,11 +133,14 @@ void init() {
   sonarsModule.setSonars(sonars);
   sonarsModule.setGlobalData(globalData);
 
+  /* Initialize Modules 50ms */
+  autonomusModule.setGlobalData(globalData);
+
   /* Initialize Modules 100ms */
   movingModule.setMovingModuleCommandsQueue(movingModuleCommandsQueue);
   movingModule.setMainMotorLeft(mainMotorLeft);
   movingModule.setMainMotorRight(mainMotorRight);
-  movingModule.setSonars(sonars);
+  movingModule.setGlobalData(globalData);
 
   /* Initialize Modules 1000ms */
 
@@ -160,6 +163,28 @@ void init() {
       LOGI(TAG, "Module \"%s\" initialized successfully!", MODULES_10MS2[i]->getName());
     } else {
       LOGW(TAG, "Module \"%s\" not initialized!", MODULES_10MS2[i]->getName());
+    }
+  }
+
+  LOGI(TAG, "Modules 20ms: %d", NUM_OF_MODULES_20MS);
+  for (i = 0; i < NUM_OF_MODULES_20MS; i++) {
+    LOGI(TAG, "Init module '%s'", MODULES_20MS[i]->getName());
+    errorCode = MODULES_20MS[i]->init();
+    if (errorCode == E_OK) {
+      LOGI(TAG, "Module \"%s\" initialized successfully!", MODULES_20MS[i]->getName());
+    } else {
+      LOGW(TAG, "Module \"%s\" not initialized!", MODULES_20MS[i]->getName());
+    }
+  }
+
+  LOGI(TAG, "Modules 50ms: %d", NUM_OF_MODULES_50MS);
+  for (i = 0; i < NUM_OF_MODULES_50MS; i++) {
+    LOGI(TAG, "Init module '%s'", MODULES_50MS[i]->getName());
+    errorCode = MODULES_50MS[i]->init();
+    if (errorCode == E_OK) {
+      LOGI(TAG, "Module \"%s\" initialized successfully!", MODULES_50MS[i]->getName());
+    } else {
+      LOGW(TAG, "Module \"%s\" not initialized!", MODULES_50MS[i]->getName());
     }
   }
 
@@ -201,7 +226,7 @@ int main() {
   }
 
   LOGI(TAG, "Run task %s", "task10ms");
-  xReturn = xTaskCreateAtProcessor(CORE_0, &task10ms, "task10ms", 4096, NULL, 2, NULL);
+  xReturn = xTaskCreateAtProcessor(CORE_0, &task10ms, "task10ms", 4096, NULL, 5, NULL);
   if (xReturn != pdPASS) {
     LOGI(TAG, "Task %s run problem", "task10ms");
   } else {
@@ -233,11 +258,19 @@ int main() {
   }
 
   LOGI(TAG, "Run task %s", "task1000ms");
-  xReturn = xTaskCreateAtProcessor(CORE_1, &task1000ms, "task1000ms", 8192, NULL, 3, NULL);
+  xReturn = xTaskCreateAtProcessor(CORE_1, &task1000ms, "task1000ms", 8192, NULL, 2, NULL);
   if (xReturn != pdPASS) {
     LOGI(TAG, "Task %s run problem", "task1000ms");
   } else {
     LOGI(TAG, "Rask %s is running", "task1000ms");
+  }
+
+  LOGI(TAG, "Run task %s", "task50ms");
+  xReturn = xTaskCreateAtProcessor(CORE_0, &task50ms, "task50ms", 4096, NULL, 2, NULL);
+  if (xReturn != pdPASS) {
+    LOGI(TAG, "Task %s run problem", "task50ms");
+  } else {
+    LOGI(TAG, "Rask %s is running", "task50ms");
   }
 
   for (;;) {

@@ -14,6 +14,11 @@ GlobalData::GlobalData(const char *moduleName) : Module(moduleName) {
   gyroData.absoluteX = 0;
   gyroData.absoluteY = 0;
   gyroData.absoluteZ = 0;
+
+  movingModuleInterface.command = MOVING_MODULE_COMMAND_NONE;
+  movingModuleInterface.commandAttribute = MOVING_MODULE_COMMAND_ATTRIBUTE_NONE;
+  movingModuleInterface.movingDirection = MOVING_MODULE_DIRECTION_NONE;
+  movingModuleInterface.pwmValue = 0u;
 }
 
 ErrorCode GlobalData::initModule(void) {
@@ -35,8 +40,20 @@ void GlobalData::setSonarsData(SonarsData &sonarsData) {
   this->sonarsData = sonarsData;
 }
 
+SonarsData GlobalData::getSonarsData(void) {
+  return sonarsData;
+}
+
 void GlobalData::setGyroData(GyroData &gyroData) {
   this->gyroData = gyroData;
+}
+
+void GlobalData::setMovingModuleInterface(MovingModuleInterface &movingModuleInterface) {
+  this->movingModuleInterface = movingModuleInterface;
+}
+
+MovingModuleInterface GlobalData::getMovingModuleInterface(void) {
+  return this->movingModuleInterface;
 }
 
 GlobalData::~GlobalData(void) {

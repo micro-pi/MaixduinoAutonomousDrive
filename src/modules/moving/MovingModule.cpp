@@ -25,16 +25,21 @@ void MovingModule::setMainMotorRight(MainMotor &mainMotorRight) {
   this->mainMotorRight = &mainMotorRight;
 }
 
-void MovingModule::setSonars(Sonars &sonars) {
-  this->sonars = &sonars;
+void MovingModule::setGlobalData(GlobalData &globalData) {
+  this->globalData = &globalData;
 }
 
 void MovingModule::mainFunction(void) {
+  MovingModuleInterface lastCmdCopy;
   portBASE_TYPE xStatus;
 
   if (this->movingModuleCommandsQueue != nullptr) {
     xStatus = xQueueReceive(this->movingModuleCommandsQueue, &lastCmd, 0);
     if (xStatus == pdPASS) {
+      if (globalData != nullptr) {
+        lastCmdCopy = lastCmd;
+        globalData->setMovingModuleInterface(lastCmd);
+      }
       switch (lastCmd.command) {
         case MOVING_MODULE_COMMAND_STOP:
           stopCommand(lastCmd.commandAttribute);

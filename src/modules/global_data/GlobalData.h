@@ -45,6 +45,7 @@ class GlobalData : public Module {
 private:
   SonarsData sonarsData;
   GyroData gyroData;
+  MovingModuleInterface movingModuleInterface;
 
 public:
   /**
@@ -54,7 +55,10 @@ public:
   ErrorCode initModule(void);
   void mainFunction(void);
   void setSonarsData(SonarsData &sonarsData);
+  SonarsData getSonarsData(void);
   void setGyroData(GyroData &gyroData);
+  void setMovingModuleInterface(MovingModuleInterface &movingModuleInterface);
+  MovingModuleInterface getMovingModuleInterface(void);
   ~GlobalData(void);
 };
 
